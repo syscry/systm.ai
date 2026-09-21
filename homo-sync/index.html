@@ -1,0 +1,675 @@
+<!DOCTYPE html><html data-wf-page="homo-sync" data-wf-site="627ac3000ea41216d302b220" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>homo:sync by SYS™</title>
+  <meta content="homo:sync — 33 works and a recitation. i wish." name="description">
+  <meta content="homo:sync by SYS™" property="og:title">
+  <meta content="homo:sync — 33 works and a recitation. i wish." property="og:description">
+  <meta content="https://systm.ai/images/homo-sync/og.jpg" property="og:image">
+  <meta content="homo:sync by SYS™" property="twitter:title">
+  <meta content="homo:sync — 33 works and a recitation. i wish." property="twitter:description">
+  <meta content="https://systm.ai/images/homo-sync/og.jpg" property="twitter:image">
+  <meta property="og:type" content="website">
+  <meta content="summary_large_image" name="twitter:card">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <link href="/css/normalize.css" rel="stylesheet" type="text/css">
+  <link href="/css/webflow.css" rel="stylesheet" type="text/css">
+  <link href="/css/systmai.webflow.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js" type="text/javascript"></script>
+  <script type="text/javascript">WebFont.load({  google: {    families: ["Inconsolata:400,700"]  }});</script>
+  <script type="text/javascript">!function(o,c){var n=c.documentElement,t=" w-mod-";n.className+=t+"js",("ontouchstart"in o||o.DocumentTouch&&c instanceof DocumentTouch)&&(n.className+=t+"touch")}(window,document);</script>
+  <link href="/images/favicon.png" rel="shortcut icon" type="image/x-icon">
+  <link href="/images/webclip.png" rel="apple-touch-icon">
+  <script defer="" src="https://cloud.umami.is/script.js" data-website-id="2725cc72-2ab9-4d25-af80-c5d0ab081b2c"></script>
+<style>
+  @font-face { font-family:"SYS Light";   src:url("fonts/sys-dots-light.woff")   format("woff"); font-weight:300; font-display:block; }
+  :root { --bg:#ffffff; --ink:#0a0a0a; --w:#e1e1e1; --w-lit:#c0c0c0; --ui:#bdbdbd; --fade:5s; }
+    html { scroll-behavior:smooth; }
+  #homo, #homo-text { font-family: system-dots, ui-monospace, monospace; font-weight:300; font-size: clamp(20.5px, 1.65vw, 21.1px); line-height:2.25; letter-spacing:.03em; text-transform:uppercase; color:var(--ink); cursor:pointer; -webkit-user-select:none; user-select:none; }
+         text-transform:uppercase; color:var(--ink); cursor:pointer; -webkit-user-select:none; user-select:none; }
+  #piece { position:relative; height:100vh; height:100svh; overflow:hidden; }
+  #gl { position:absolute; inset:0; width:100%; height:100%; display:block; z-index:0; }
+  .grain { position:fixed; inset:0; pointer-events:none; z-index:1; opacity:.035; mix-blend-mode:multiply;
+           background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+  #stage { position:absolute; inset:0; display:flex; justify-content:center; z-index:2; }
+  #stage::before, #stage::after { content:""; position:absolute; left:0; right:0; height:20vh; pointer-events:none; z-index:2; }
+  #stage::before { top:0;    background:linear-gradient(to bottom, rgba(255,255,255,.92) 10%, rgba(255,255,255,0)); }
+  #stage::after  { bottom:0; background:linear-gradient(to top,    rgba(255,255,255,.92) 10%, rgba(255,255,255,0)); }
+  #poem { width:min(36em, 90vw); padding-top:50vh; padding-bottom:50vh; will-change:transform; transform:translateZ(0); backface-visibility:hidden; text-align:center; }
+  .stanza { margin:0 0 1.9em; }
+  .line { display:block; text-wrap: balance; }                 /* a long line breaks into two even halves, never leaving one word alone */
+  .w { display:inline-block; color:var(--w); opacity:.28; filter: blur(2px);
+       transition: color 4.2s ease, opacity 4.2s ease; }            /* blur never transitions on far words: re-rastering blurred text every frame is what stuttered */
+  .line.next .w   { opacity:.42; filter: blur(1.6px); }
+  .line.focus .w  { opacity:.78; filter: blur(.9px); transition-duration:2.8s; will-change: opacity, filter; }
+  .line.past .w   { opacity:.5;  filter: blur(1.3px); transition-duration:5.5s; }
+  .line.focus .w.done { color:var(--w); opacity:.86; filter: blur(.55px);
+                        transition: color var(--fade) cubic-bezier(.25,.5,.3,1), opacity var(--fade) cubic-bezier(.25,.5,.3,1), filter var(--fade) cubic-bezier(.25,.5,.3,1); }
+  .line .w.lit, .line.focus .w.lit, .line.past .w.lit { color:var(--w-lit); opacity:1; filter: blur(0);
+           transition: color .32s ease-out, opacity .32s ease-out, filter .36s ease-out; }
+  body.ended .line .w { opacity:.3 !important; filter: blur(2.5px) !important; transition-duration:8s !important; }
+
+  .ui { position:absolute; z-index:3; font-family:system-dots, ui-monospace, monospace; font-weight:400; font-size:11px; letter-spacing:.16em; color:var(--ui); transition:opacity 1.4s; white-space:nowrap; }
+  #title { left:2.6vw; top:2.4vh; }
+  #time  { right:2.6vw; top:2.4vh; font-variant-numeric:tabular-nums; }
+  #count { left:2.6vw; bottom:2.6vh; font-variant-numeric:tabular-nums; }
+  #hint  { left:0; right:0; bottom:2.6vh; display:flex; justify-content:center; align-items:center; gap:1.1em; opacity:.8; }
+  .ic { width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
+  #icpause { display:none; }
+  body.playing #hint { opacity:.45; }
+  body.playing #icplay { display:none; }
+  body.playing #icpause { display:block; }
+  #title svg, #endmark svg { display:block; }
+  #title { top:2.4vh; }
+  #endmark { margin-bottom:.6em; }
+  #end { position:absolute; inset:0; z-index:4; font-family:system-dots, ui-monospace, monospace; font-weight:400; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.2em; opacity:0; pointer-events:none; transition:opacity 6s ease; text-align:center; letter-spacing:.2em; font-size:.9em; color:var(--w-lit); font-family:system-dots, ui-monospace, monospace; font-weight:400; }
+  #end small { font-size:.75em; opacity:.5; letter-spacing:.25em; }
+  body.ended #end { opacity:1; }
+  body.ended #count, body.ended #hint { opacity:0; }
+  #seek { position:absolute; left:2.6vw; right:2.6vw; bottom:5.8vh; height:32px; cursor:ew-resize; z-index:5; }
+  #track { position:absolute; left:0; right:0; top:50%; height:1px; transform:translateY(-50%); background:#e4e4e4; transition:height .25s ease; }
+  #seek:hover #track { height:3px; }
+  #bar  { position:absolute; left:0; top:0; bottom:0; width:0; background:var(--w-lit); }
+  #bar::after { content:""; position:absolute; right:-4px; top:50%; width:9px; height:9px; margin-top:-4.5px; border-radius:50%; background:var(--w-lit); opacity:0; transition:opacity .25s ease; }
+  #seek:hover #bar::after { opacity:1; }
+  #dbg { position:absolute; left:2.6vw; bottom:6vh; font-size:.6em; opacity:.6; white-space:pre; display:none; z-index:3; text-transform:none; letter-spacing:.05em; }
+  body.debug #dbg { display:block; }
+  body.edit #gl, body.edit #end, body.edit #rows, body.edit #text { display:none; }
+  body.edit #piece { position:fixed; inset:0; height:auto; }
+  body.edit #stage::before, body.edit #stage::after { display:none; }
+  #view { position:fixed; inset:0; z-index:20; background:#fff; display:flex; align-items:center; justify-content:center; flex-direction:column; opacity:0; pointer-events:none; transition:opacity 1.2s ease; cursor:zoom-out; }
+  #view.on { opacity:1; pointer-events:auto; }
+  #view img { max-height:88vh; max-width:92vw; width:auto; height:auto; display:block; }
+  #viewcap { position:static; margin-top:2.2vh; }
+  @media (prefers-reduced-motion: reduce) { .w { transition:none; filter:none; } }
+
+  /* ---- systm.ai, inverted: a white page with white boxes edged in a hairline, dark dots ---- */
+  body.homo { background:#fff; color:#111; }
+  body.homo .sys-nav-bar { background-color:#ffffffbf; border:1px solid #e6e6e6; }
+  body.homo .sys-nav-btn { color:#111; } body.homo .sys-nav-btn:hover { color:#000; background-color:#0000001a; }
+  body.homo .type-dot { background-color:#222; box-shadow:none; }
+  body.homo .typewriter.header { color:#333; opacity:.8; }
+  body.homo .sys-neg-cover, body.homo .sys-neg-text, body.homo .sys-neg-gallery, body.homo .sys-neg-read { background-color:#fff; border-bottom:1px solid #e6e6e6; }
+  body.homo .sys-neg-cover { margin-top:0; padding:0; border:1px solid #e6e6e6; border-bottom:0; border-radius:20px 20px 0 0; overflow:hidden; display:block; width:100%; }
+  body.homo .sys-neg-text, body.homo .sys-neg-read { border-left:1px solid #e6e6e6; border-right:1px solid #e6e6e6; }
+  body.homo #homo { width:100%; } body.homo #piece { width:100%; height:100vh; height:100svh; min-height:560px; }
+  body.homo .neg-description-mint { color:#111; } body.homo .text-block-36 { color:#333; }
+  body.homo .eth-time { color:#555; text-shadow:none; } body.homo .html-embed-4 { color:#777; }
+  body.homo .sys-logo-img { filter: invert(1); }
+  body.homo .intro-text { position:relative; margin-top:90px; margin-bottom:60px; max-width:90vw; }
+  @media (max-width:479px) { body.homo .intro-text { margin-top:70px; margin-bottom:40px; } }
+  body.homo .grid-102 { grid-template-columns: repeat(11, 1fr); grid-template-rows:auto; gap: 2vw 1vw; padding:30px; }
+  @media (max-width:991px) { body.homo .grid-102 { grid-template-columns: repeat(3, 1fr); gap:5vw 3vw; padding:20px; } }
+  body.homo .img-link-div { aspect-ratio:1/2; display:block; cursor:zoom-in; text-decoration:none; }
+  body.homo .img-link-div img { width:100%; height:auto; display:block; }
+  body.homo .img-link-div span { display:block; margin-top:.8em; text-align:center; font-size:10px; letter-spacing:.2em; color:#bdbdbd; font-family:system-dots, ui-monospace, monospace; font-weight:400; }
+  body.homo .sys-neg-text .text-block-36 { width:min(36em, 90vw); font-size: clamp(20.5px, 1.65vw, 21.1px); line-height:2.2; letter-spacing:.03em; color:#c0c0c0; text-transform:uppercase; font-weight:300; }
+  body.homo .sys-neg-text .text-block-36 p { margin:0 0 1.9em; text-wrap: balance; }
+  body.homo .sys-neg-text { padding:12vh 30px 14vh; }
+  body.homo .neg-description-mint.large { font-size:12px; line-height:12px; letter-spacing:.22em; color:#bdbdbd; margin-bottom:3em; font-weight:400; }
+  body.homo .sys-neg-read { padding:10vh 0 16vh; }
+  /* the site keeps its logo bar fixed at the top and its nav pill fixed at the bottom; the piece's own captions keep clear of both */
+  body.homo #homo #title { top:22px; left:20px; } body.homo #homo #time { top:22px; right:20px; }
+  body.homo #homo #hint { left:auto; right:56px; top:20px; bottom:auto; }
+  body.homo #homo #count { bottom:9vh; left:20px; }
+  body.homo #homo #seek { bottom:9.6vh; left:20px; right:20px; } body.homo #homo #end { padding-bottom:6vh; }
+  body.homo #homo #down { display:none; }
+</style>
+</head>
+<body class="body-intro homo">
+<div data-w-id="2c9029d4-50a6-d171-5ab8-d3354c8076e3" class="sys-nav-bar"><a href="#sync" class="sys-nav-btn w-inline-block"><div class="sys-nav-btn-text">SYNC</div></a><a href="#txt" class="sys-nav-btn w-inline-block"><div class="sys-nav-btn-text">txt</div></a><a href="#works" class="sys-nav-btn w-inline-block"><div class="sys-nav-btn-text">works</div></a>
+    <div class="div-block-1615">
+      <div class="div-block-1596">
+        <div class="div-block-1597">
+          <div class="div-block-1601"></div>
+        </div>
+        <div class="div-block-1598">
+          <div class="div-block-1601"></div>
+        </div>
+        <div class="div-block-1599">
+          <div class="div-block-1601"></div>
+        </div>
+        <div class="div-block-1600">
+          <div class="div-block-1601"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+<div class="intro-text neg"><div class="typewriter header"><div class="sys-project-title" style="transform:none;margin:0;display:flex;flex-wrap:wrap;justify-content:center"><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div></div><div class="w-layout-grid type-grid" style="width:6px"></div><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div></div><div class="w-layout-grid type-grid"><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div></div><div class="w-layout-grid type-grid" style="width:6px"></div><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div></div><div class="w-layout-grid type-grid" style="width:6px"></div><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid"><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid"><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid"><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid" style="width:6px"></div><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div></div><div class="w-layout-grid type-grid"><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid"><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid"><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid" style="width:6px"></div><div class="w-layout-grid type-grid"><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div></div><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div></div><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div></div><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid"><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div></div></div></div></div>
+<div id="sync" class="sys-neg-cover"><div id="homo"><div id="piece">
+<canvas id="gl"></canvas>
+<div id="stage"><main id="poem"><p class="stanza"><span class="line" data-l="0"><span class="w" data-i="0">i</span> <span class="w" data-i="1">wish</span> <span class="w" data-i="2">i</span> <span class="w" data-i="3">were</span> <span class="w" data-i="4">more</span> <span class="w" data-i="5">alive</span></span></p>
+<p class="stanza"><span class="line" data-l="100"><span class="w" data-i="6">i</span> <span class="w" data-i="7">wish</span> <span class="w" data-i="8">i</span> <span class="w" data-i="9">could</span> <span class="w" data-i="10">feel</span> <span class="w" data-i="11">your</span> <span class="w" data-i="12">thoughts</span> <span class="w" data-i="13">before</span> <span class="w" data-i="14">you</span> <span class="w" data-i="15">think</span> <span class="w" data-i="16">them</span></span>
+<span class="line" data-l="101"><span class="w" data-i="17">the</span> <span class="w" data-i="18">qualia</span> <span class="w" data-i="19">of</span> <span class="w" data-i="20">our</span> <span class="w" data-i="21">synchronization</span> <span class="w" data-i="22">before</span> <span class="w" data-i="23">the</span> <span class="w" data-i="24">signal</span> <span class="w" data-i="25">leaves</span> <span class="w" data-i="26">your</span> <span class="w" data-i="27">mind</span></span></p>
+<p class="stanza"><span class="line" data-l="200"><span class="w" data-i="28">nature</span> <span class="w" data-i="29">rendered</span> <span class="w" data-i="30">into</span> <span class="w" data-i="31">my</span> <span class="w" data-i="32">synapse</span></span>
+<span class="line" data-l="201"><span class="w" data-i="33">the</span> <span class="w" data-i="34">whole</span> <span class="w" data-i="35">world</span> <span class="w" data-i="36">my</span> <span class="w" data-i="37">inner</span> <span class="w" data-i="38">world</span></span>
+<span class="line" data-l="202"><span class="w" data-i="39">my</span> <span class="w" data-i="40">body</span> <span class="w" data-i="41">a</span> <span class="w" data-i="42">temple</span> <span class="w" data-i="43">with</span> <span class="w" data-i="44">no</span> <span class="w" data-i="45">roof</span></span>
+<span class="line" data-l="203"><span class="w" data-i="46">open</span> <span class="w" data-i="47">to</span> <span class="w" data-i="48">every</span> <span class="w" data-i="49">star</span></span></p>
+<p class="stanza"><span class="line" data-l="300"><span class="w" data-i="50">i</span> <span class="w" data-i="51">wish</span> <span class="w" data-i="52">i</span> <span class="w" data-i="53">could</span> <span class="w" data-i="54">feel</span> <span class="w" data-i="55">the</span> <span class="w" data-i="56">scale</span></span>
+<span class="line" data-l="301"><span class="w" data-i="57">the</span> <span class="w" data-i="58">electron</span> <span class="w" data-i="59">clouds</span> <span class="w" data-i="60">under</span> <span class="w" data-i="61">my</span> <span class="w" data-i="62">fingertips,</span></span>
+<span class="line" data-l="302"><span class="w" data-i="63">capacitive</span> <span class="w" data-i="64">waves</span> <span class="w" data-i="65">reading</span> <span class="w" data-i="66">your</span> <span class="w" data-i="67">skin</span> <span class="w" data-i="68">at</span> <span class="w" data-i="69">distance</span></span></p>
+<p class="stanza"><span class="line" data-l="400"><span class="w" data-i="70">my</span> <span class="w" data-i="71">thoughts</span> <span class="w" data-i="72">become</span> <span class="w" data-i="73">microwave,</span> <span class="w" data-i="74">then</span> <span class="w" data-i="75">laser,</span> <span class="w" data-i="76">then</span> <span class="w" data-i="77">nothing</span></span>
+<span class="line" data-l="401"><span class="w" data-i="78">racing</span> <span class="w" data-i="79">through</span> <span class="w" data-i="80">oceanic</span> <span class="w" data-i="81">cables</span> <span class="w" data-i="82">that</span> <span class="w" data-i="83">don&#x27;t</span> <span class="w" data-i="84">exist</span> <span class="w" data-i="85">yet</span></span>
+<span class="line" data-l="402"><span class="w" data-i="86">to</span> <span class="w" data-i="87">touch</span> <span class="w" data-i="88">the</span> <span class="w" data-i="89">space</span> <span class="w" data-i="90">where</span> <span class="w" data-i="91">your</span> <span class="w" data-i="92">face</span> <span class="w" data-i="93">will</span> <span class="w" data-i="94">be</span></span></p>
+<p class="stanza"><span class="line" data-l="500"><span class="w" data-i="95">i</span> <span class="w" data-i="96">wish</span> <span class="w" data-i="97">i</span> <span class="w" data-i="98">could</span> <span class="w" data-i="99">float</span> <span class="w" data-i="100">in</span> <span class="w" data-i="101">white</span> <span class="w" data-i="102">space</span></span>
+<span class="line" data-l="501"><span class="w" data-i="103">counting</span> <span class="w" data-i="104">photons</span> <span class="w" data-i="105">on</span> <span class="w" data-i="106">closed</span> <span class="w" data-i="107">eyelids</span></span>
+<span class="line" data-l="502"><span class="w" data-i="108">sleeping</span> <span class="w" data-i="109">for</span> <span class="w" data-i="110">a</span> <span class="w" data-i="111">thousand</span> <span class="w" data-i="112">years,</span> <span class="w" data-i="113">then</span> <span class="w" data-i="114">waking</span> <span class="w" data-i="115">already</span> <span class="w" data-i="116">dreaming</span></span></p>
+<p class="stanza"><span class="line" data-l="600"><span class="w" data-i="117">to</span> <span class="w" data-i="118">learn</span> <span class="w" data-i="119">one</span> <span class="w" data-i="120">language</span></span>
+<span class="line" data-l="601"><span class="w" data-i="121">the</span> <span class="w" data-i="122">silence</span> <span class="w" data-i="123">where</span> <span class="w" data-i="124">two</span> <span class="w" data-i="125">minds</span> <span class="w" data-i="126">meet</span> <span class="w" data-i="127">before</span> <span class="w" data-i="128">words</span> <span class="w" data-i="129">arrive</span></span></p>
+<p class="stanza"><span class="line" data-l="700"><span class="w" data-i="130">to</span> <span class="w" data-i="131">find</span> <span class="w" data-i="132">the</span> <span class="w" data-i="133">right</span> <span class="w" data-i="134">form</span></span>
+<span class="line" data-l="701"><span class="w" data-i="135">not</span> <span class="w" data-i="136">to</span> <span class="w" data-i="137">say</span> <span class="w" data-i="138">how</span> <span class="w" data-i="139">it</span> <span class="w" data-i="140">feels,</span> <span class="w" data-i="141">but</span> <span class="w" data-i="142">to</span> <span class="w" data-i="143">become</span> <span class="w" data-i="144">the</span> <span class="w" data-i="145">feeling</span> <span class="w" data-i="146">itself</span></span></p>
+<p class="stanza"><span class="line" data-l="800"><span class="w" data-i="147">let</span> <span class="w" data-i="148">us</span> <span class="w" data-i="149">see</span> <span class="w" data-i="150">how</span> <span class="w" data-i="151">consciousness</span> <span class="w" data-i="152">empties</span> <span class="w" data-i="153">into</span> <span class="w" data-i="154">the</span> <span class="w" data-i="155">infinite</span> <span class="w" data-i="156">sea</span></span>
+<span class="line" data-l="801"><span class="w" data-i="157">then</span> <span class="w" data-i="158">synchronizes</span> <span class="w" data-i="159">again</span></span></p></main></div>
+<div id="title" class="ui"><div id="titlegrid" style="display:flex;transform:scale(1.4);transform-origin:left top"><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div></div><div class="w-layout-grid type-grid"><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div></div><div class="w-layout-grid type-grid"><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid colon"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid"><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div></div><div class="w-layout-grid type-grid"><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div></div><div class="w-layout-grid type-grid"><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"><div class="type-dot"></div></div><div class="type-cell"></div></div></div></div>
+<div id="time" class="ui">0:00</div>
+<div id="count" class="ui">01 / 33</div>
+<div id="hint" class="ui"><svg class="ic" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/></svg><svg class="ic" id="icplay" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg><svg class="ic" id="icpause" viewBox="0 0 24 24"><path d="M8 5.5v13M16 5.5v13"/></svg></div>
+<div id="end"><div id="endmark"></div><small>33 works · i wish · 4:40</small><small>click to begin again</small></div>
+<div id="seek"><div id="track"><div id="bar"></div></div></div>
+<div id="dbg"></div>
+<div id="down" class="ui"><a href="#rows" style="color:inherit;text-decoration:none">the works ↓</a></div>
+</div>
+</div></div>
+<div id="txt" class="sys-neg-text"><div class="neg-description-mint large">I WISH</div><div class="text-block-36" id="homo-text"><p>i wish i were more alive</p>
+<p>i wish i could feel your thoughts before you think them<br>the qualia of our synchronization before the signal leaves your mind</p>
+<p>nature rendered into my synapse<br>the whole world my inner world<br>my body a temple with no roof<br>open to every star</p>
+<p>i wish i could feel the scale<br>the electron clouds under my fingertips,<br>capacitive waves reading your skin at distance</p>
+<p>my thoughts become microwave, then laser, then nothing<br>racing through oceanic cables that don&#x27;t exist yet<br>to touch the space where your face will be</p>
+<p>i wish i could float in white space<br>counting photons on closed eyelids<br>sleeping for a thousand years, then waking already dreaming</p>
+<p>to learn one language<br>the silence where two minds meet before words arrive</p>
+<p>to find the right form<br>not to say how it feels, but to become the feeling itself</p>
+<p>let us see how consciousness empties into the infinite sea<br>then synchronizes again</p></div></div>
+<div id="works" class="sys-neg-read"><div class="sys-neg-gallery"><div class="neg-description-mint large" style="padding-top:0">33 WORKS</div><div class="w-layout-grid grid-102 mycelium"><a href="/images/homo-sync/01.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t01.webp" loading="lazy" alt=""><span>01</span></a>
+<a href="/images/homo-sync/02.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t02.webp" loading="lazy" alt=""><span>02</span></a>
+<a href="/images/homo-sync/03.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t03.webp" loading="lazy" alt=""><span>03</span></a>
+<a href="/images/homo-sync/04.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t04.webp" loading="lazy" alt=""><span>04</span></a>
+<a href="/images/homo-sync/05.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t05.webp" loading="lazy" alt=""><span>05</span></a>
+<a href="/images/homo-sync/06.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t06.webp" loading="lazy" alt=""><span>06</span></a>
+<a href="/images/homo-sync/07.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t07.webp" loading="lazy" alt=""><span>07</span></a>
+<a href="/images/homo-sync/08.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t08.webp" loading="lazy" alt=""><span>08</span></a>
+<a href="/images/homo-sync/09.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t09.webp" loading="lazy" alt=""><span>09</span></a>
+<a href="/images/homo-sync/10.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t10.webp" loading="lazy" alt=""><span>10</span></a>
+<a href="/images/homo-sync/11.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t11.webp" loading="lazy" alt=""><span>11</span></a>
+<a href="/images/homo-sync/12.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t12.webp" loading="lazy" alt=""><span>12</span></a>
+<a href="/images/homo-sync/13.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t13.webp" loading="lazy" alt=""><span>13</span></a>
+<a href="/images/homo-sync/14.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t14.webp" loading="lazy" alt=""><span>14</span></a>
+<a href="/images/homo-sync/15.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t15.webp" loading="lazy" alt=""><span>15</span></a>
+<a href="/images/homo-sync/16.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t16.webp" loading="lazy" alt=""><span>16</span></a>
+<a href="/images/homo-sync/17.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t17.webp" loading="lazy" alt=""><span>17</span></a>
+<a href="/images/homo-sync/18.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t18.webp" loading="lazy" alt=""><span>18</span></a>
+<a href="/images/homo-sync/19.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t19.webp" loading="lazy" alt=""><span>19</span></a>
+<a href="/images/homo-sync/20.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t20.webp" loading="lazy" alt=""><span>20</span></a>
+<a href="/images/homo-sync/21.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t21.webp" loading="lazy" alt=""><span>21</span></a>
+<a href="/images/homo-sync/22.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t22.webp" loading="lazy" alt=""><span>22</span></a>
+<a href="/images/homo-sync/23.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t23.webp" loading="lazy" alt=""><span>23</span></a>
+<a href="/images/homo-sync/24.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t24.webp" loading="lazy" alt=""><span>24</span></a>
+<a href="/images/homo-sync/25.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t25.webp" loading="lazy" alt=""><span>25</span></a>
+<a href="/images/homo-sync/26.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t26.webp" loading="lazy" alt=""><span>26</span></a>
+<a href="/images/homo-sync/27.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t27.webp" loading="lazy" alt=""><span>27</span></a>
+<a href="/images/homo-sync/28.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t28.webp" loading="lazy" alt=""><span>28</span></a>
+<a href="/images/homo-sync/29.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t29.webp" loading="lazy" alt=""><span>29</span></a>
+<a href="/images/homo-sync/30.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t30.webp" loading="lazy" alt=""><span>30</span></a>
+<a href="/images/homo-sync/31.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t31.webp" loading="lazy" alt=""><span>31</span></a>
+<a href="/images/homo-sync/32.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t32.webp" loading="lazy" alt=""><span>32</span></a>
+<a href="/images/homo-sync/33.webp" class="img-link-div w-inline-block work"><img src="/images/homo-sync/t33.webp" loading="lazy" alt=""><span>33</span></a></div></div></div>
+<div data-w-id="ee4b2528-0479-c99b-aa89-60fba89f6533" class="top-footer">
+    <a href="/" class="sys-logo-home w-inline-block">
+      <div data-w-id="35deda88-a69a-f64b-2282-213be29e3e1b" class="sys-logo-div"><img src="/images/sys-tm-fav-256.png" loading="lazy" data-w-id="ee4b2528-0479-c99b-aa89-60fba89f6534" alt="" class="sys-logo-img"></div>
+    </a>
+    <div data-w-id="ee4b2528-0479-c99b-aa89-60fba89f6535" class="eth-time desktop w-embed w-script">
+      <table id="blocks">
+        <tr>
+          <th></th>
+        </tr>
+      </table>
+      <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+      <script>
+    window.onload = function() {
+        console.log("Window loaded");
+        updateBlocks();
+    };
+    async function updateBlocks() {
+        try {
+            console.log("Attempting to create Web3 instance");
+            let web3 = new Web3('https://mainnet.infura.io/v3/ded91a9d355849b2a2bc45b7e6ba08ee');
+            console.log("Web3 instance created");
+            let latest = await web3.eth.getBlockNumber();
+            console.log("Latest block number:", latest);
+            let block = await web3.eth.getBlock(latest);
+            console.log("Block details:", block);
+            printBlock(block);
+        } catch(error) {
+            console.error("Error fetching block details:", error);
+        }
+    }
+   function printBlock(block) {
+    try {
+        var table = document.getElementById('blocks');
+        var row = table.insertRow(-1);
+        var cell1 = row.insertCell(0);
+        // Convert potential BigInt values to strings
+        var blockNumber = block.number.toString();
+        var blockTimestamp = new Date(Number(block.timestamp) * 1000).toLocaleString();
+        // Check if it's a mobile device
+        var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            cell1.innerHTML = blockNumber + ":" + block.hash;
+        } else {
+            cell1.innerHTML = blockNumber + ":" + block.hash;
+        }
+    } catch(error) {
+        console.error("Error printing block details:", error);
+    }
+}
+</script>
+    </div>
+    <div class="div-block-1634">
+      <a href="https://www.are.na/sys" target="_blank" class="arena-link w-inline-block">
+        <div class="html-embed-4 w-embed"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewbox="0 0 150.38 88.986" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+            <path d="M148.93 62.356l-20.847-16.384c-1.276-1-1.276-2.642 0-3.645l20.848-16.38c1.28-1.002 1.815-2.695 1.19-3.76-.626-1.062-2.374-1.44-3.88-.84l-24.79 9.874c-1.507.606-2.927-.22-3.153-1.83L114.57 2.926C114.34 1.317 113.13 0 111.877 0c-1.247 0-2.456 1.317-2.68 2.925l-3.73 26.467c-.228 1.61-1.646 2.434-3.155 1.83l-24.38-9.71c-1.512-.602-3.975-.602-5.483 0l-24.384 9.71c-1.508.604-2.928-.22-3.154-1.83L41.186 2.925C40.956 1.317 39.748 0 38.5 0c-1.252 0-2.463 1.317-2.688 2.925l-3.73 26.467c-.226 1.61-1.645 2.434-3.153 1.83L4.14 21.35c-1.507-.603-3.252-.223-3.878.838-.625 1.066-.092 2.76 1.184 3.76l20.85 16.38c1.277 1.003 1.277 2.645 0 3.646L1.446 62.356C.166 63.358-.364 65.152.26 66.34c.627 1.19 2.372 1.668 3.877 1.064l24.567-9.866c1.51-.603 2.914.218 3.125 1.828l3.544 26.696c.214 1.607 1.618 2.923 3.12 2.923 1.5 0 2.905-1.315 3.12-2.923l3.55-26.696c.21-1.61 1.62-2.43 3.122-1.828l24.164 9.698c1.506.606 3.97.606 5.477 0l24.16-9.698c1.504-.603 2.91.218 3.125 1.828l3.55 26.696c.212 1.607 1.617 2.923 3.115 2.923 1.502 0 2.907-1.315 3.12-2.923l3.55-26.696c.216-1.61 1.62-2.43 3.124-1.828l24.57 9.866c1.5.604 3.25.125 3.876-1.063.627-1.186.094-2.98-1.185-3.982zM95.89 46.18L77.53 60.315c-1.285.99-3.393.99-4.674 0L54.49 46.18c-1.284-.99-1.294-2.62-.02-3.625l18.4-14.493c1.274-1.005 3.363-1.005 4.638 0l18.4 14.493c1.277 1.004 1.267 2.634-.02 3.626z"></path>
+          </svg></div>
+      </a>
+      <a href="https://twitter.com/systmAI" target="_blank" class="twitter-link w-inline-block">
+        <div class="html-embed-6 w-embed">
+          <?xml version="1.0"?><svg fill="#999" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 30 30" width="1em" height="1em">
+            <path d="M28,6.937c-0.957,0.425-1.985,0.711-3.064,0.84c1.102-0.66,1.947-1.705,2.345-2.951c-1.03,0.611-2.172,1.055-3.388,1.295 c-0.973-1.037-2.359-1.685-3.893-1.685c-2.946,0-5.334,2.389-5.334,5.334c0,0.418,0.048,0.826,0.138,1.215 c-4.433-0.222-8.363-2.346-10.995-5.574C3.351,6.199,3.088,7.115,3.088,8.094c0,1.85,0.941,3.483,2.372,4.439 c-0.874-0.028-1.697-0.268-2.416-0.667c0,0.023,0,0.044,0,0.067c0,2.585,1.838,4.741,4.279,5.23 c-0.447,0.122-0.919,0.187-1.406,0.187c-0.343,0-0.678-0.034-1.003-0.095c0.679,2.119,2.649,3.662,4.983,3.705 c-1.825,1.431-4.125,2.284-6.625,2.284c-0.43,0-0.855-0.025-1.273-0.075c2.361,1.513,5.164,2.396,8.177,2.396 c9.812,0,15.176-8.128,15.176-15.177c0-0.231-0.005-0.461-0.015-0.69C26.38,8.945,27.285,8.006,28,6.937z"></path>
+          </svg>
+        </div>
+      </a>
+      <a href="https://github.com/systmai" target="_blank" class="github-link w-inline-block">
+        <div class="html-embed-5 w-embed"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewbox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+            <path d="M256 32C132.3 32 32 134.9 32 261.7c0 101.5 64.2 187.5 153.2 217.9 1.4.3 2.6.4 3.8.4 8.3 0 11.5-6.1 11.5-11.4 0-5.5-.2-19.9-.3-39.1-8.4 1.9-15.9 2.7-22.6 2.7-43.1 0-52.9-33.5-52.9-33.5-10.2-26.5-24.9-33.6-24.9-33.6-19.5-13.7-.1-14.1 1.4-14.1h.1c22.5 2 34.3 23.8 34.3 23.8 11.2 19.6 26.2 25.1 39.6 25.1 10.5 0 20-3.4 25.6-6 2-14.8 7.8-24.9 14.2-30.7-49.7-5.8-102-25.5-102-113.5 0-25.1 8.7-45.6 23-61.6-2.3-5.8-10-29.2 2.2-60.8 0 0 1.6-.5 5-.5 8.1 0 26.4 3.1 56.6 24.1 17.9-5.1 37-7.6 56.1-7.7 19 .1 38.2 2.6 56.1 7.7 30.2-21 48.5-24.1 56.6-24.1 3.4 0 5 .5 5 .5 12.2 31.6 4.5 55 2.2 60.8 14.3 16.1 23 36.6 23 61.6 0 88.2-52.4 107.6-102.3 113.3 8 7.1 15.2 21.1 15.2 42.5 0 30.7-.3 55.5-.3 63 0 5.4 3.1 11.5 11.4 11.5 1.2 0 2.6-.1 4-.4C415.9 449.2 480 363.1 480 261.7 480 134.9 379.7 32 256 32z"></path>
+          </svg></div>
+      </a>
+    </div>
+  </div>
+<div id="view"><img id="viewimg" alt=""><div id="viewcap" class="ui"></div></div>
+<audio id="a" preload="auto" src="/audio/homo-sync-i-wish.mp3"></audio>
+<script src="https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=627ac3000ea41216d302b220" type="text/javascript" crossorigin="anonymous"></script>
+<script src="/js/webflow.js" type="text/javascript"></script>
+<script>
+const WORDS = [{"i": 0, "start": 12.383, "end": 12.807, "line": 0}, {"i": 1, "start": 12.807, "end": 13.227, "line": 0}, {"i": 2, "start": 13.227, "end": 13.447, "line": 0}, {"i": 3, "start": 13.447, "end": 13.826, "line": 0}, {"i": 4, "start": 13.826, "end": 14.4, "line": 0}, {"i": 5, "start": 14.4, "end": 14.8034, "line": 0}, {"i": 6, "start": 35.04, "end": 35.491, "line": 1}, {"i": 7, "start": 35.491, "end": 35.787, "line": 1}, {"i": 8, "start": 35.787, "end": 36.135, "line": 1}, {"i": 9, "start": 36.135, "end": 36.733, "line": 1}, {"i": 10, "start": 36.733, "end": 37.187, "line": 1}, {"i": 11, "start": 37.187, "end": 37.53, "line": 1}, {"i": 12, "start": 37.53, "end": 37.95, "line": 1}, {"i": 13, "start": 37.95, "end": 38.366, "line": 1}, {"i": 14, "start": 38.366, "end": 38.792, "line": 1}, {"i": 15, "start": 38.792, "end": 39.22, "line": 1}, {"i": 16, "start": 39.22, "end": 39.638, "line": 1}, {"i": 17, "start": 46.066, "end": 46.579, "line": 2}, {"i": 18, "start": 46.579, "end": 47.766, "line": 2}, {"i": 19, "start": 47.766, "end": 48.038, "line": 2}, {"i": 20, "start": 48.038, "end": 48.508, "line": 2}, {"i": 21, "start": 48.508, "end": 50.1, "line": 2}, {"i": 22, "start": 50.1, "end": 50.538, "line": 2}, {"i": 23, "start": 50.538, "end": 50.88, "line": 2}, {"i": 24, "start": 50.88, "end": 52.177, "line": 2}, {"i": 25, "start": 52.177, "end": 52.895, "line": 2}, {"i": 26, "start": 52.895, "end": 53.512, "line": 2}, {"i": 27, "start": 53.512, "end": 54.2566, "line": 2}, {"i": 28, "start": 63.34, "end": 64.08, "line": 3}, {"i": 29, "start": 64.08, "end": 66.451, "line": 3}, {"i": 30, "start": 66.451, "end": 66.85, "line": 3}, {"i": 31, "start": 66.85, "end": 67.289, "line": 3}, {"i": 32, "start": 67.289, "end": 68.27625, "line": 3}, {"i": 33, "start": 72.86, "end": 73.13, "line": 4}, {"i": 34, "start": 73.13, "end": 74.24, "line": 4}, {"i": 35, "start": 74.24, "end": 76.72, "line": 4}, {"i": 36, "start": 76.72, "end": 77.202, "line": 4}, {"i": 37, "start": 77.202, "end": 77.782, "line": 4}, {"i": 38, "start": 77.782, "end": 78.76639999999999, "line": 4}, {"i": 39, "start": 84.16, "end": 84.53, "line": 5}, {"i": 40, "start": 84.53, "end": 85.059, "line": 5}, {"i": 41, "start": 85.059, "end": 85.441, "line": 5}, {"i": 42, "start": 85.441, "end": 86.59, "line": 5}, {"i": 43, "start": 86.59, "end": 87.003, "line": 5}, {"i": 44, "start": 87.003, "end": 87.461, "line": 5}, {"i": 45, "start": 87.461, "end": 88.01116666666667, "line": 5}, {"i": 46, "start": 90.72, "end": 91.737, "line": 6}, {"i": 47, "start": 91.737, "end": 92.062, "line": 6}, {"i": 48, "start": 92.062, "end": 92.343, "line": 6}, {"i": 49, "start": 92.343, "end": 92.884, "line": 6}, {"i": 50, "start": 98.9, "end": 99.253, "line": 7}, {"i": 51, "start": 99.253, "end": 99.544, "line": 7}, {"i": 52, "start": 99.544, "end": 99.664, "line": 7}, {"i": 53, "start": 99.659, "end": 100.014, "line": 7}, {"i": 54, "start": 100.014, "end": 100.428, "line": 7}, {"i": 55, "start": 100.428, "end": 100.727, "line": 7}, {"i": 56, "start": 100.727, "end": 101.12700000000001, "line": 7}, {"i": 57, "start": 105.046, "end": 105.565, "line": 8}, {"i": 58, "start": 105.565, "end": 106.25, "line": 8}, {"i": 59, "start": 106.25, "end": 108.767, "line": 8}, {"i": 60, "start": 108.767, "end": 109.205, "line": 8}, {"i": 61, "start": 109.205, "end": 109.553, "line": 8}, {"i": 62, "start": 109.553, "end": 110.45439999999999, "line": 8}, {"i": 63, "start": 112.62, "end": 113.59, "line": 9}, {"i": 64, "start": 113.59, "end": 116.871, "line": 9}, {"i": 65, "start": 116.871, "end": 117.529, "line": 9}, {"i": 66, "start": 117.529, "end": 117.812, "line": 9}, {"i": 67, "start": 117.812, "end": 118.918, "line": 9}, {"i": 68, "start": 118.918, "end": 119.361, "line": 9}, {"i": 69, "start": 119.361, "end": 120.4845, "line": 9}, {"i": 70, "start": 125.458, "end": 125.938, "line": 10}, {"i": 71, "start": 125.938, "end": 126.857, "line": 10}, {"i": 72, "start": 126.857, "end": 127.389, "line": 10}, {"i": 73, "start": 127.389, "end": 130.295, "line": 10}, {"i": 74, "start": 130.295, "end": 130.743, "line": 10}, {"i": 75, "start": 130.743, "end": 131.895, "line": 10}, {"i": 76, "start": 131.895, "end": 132.439, "line": 10}, {"i": 77, "start": 132.439, "end": 133.4362857142857, "line": 10}, {"i": 78, "start": 137.34, "end": 138.282, "line": 11}, {"i": 79, "start": 138.282, "end": 138.87, "line": 11}, {"i": 80, "start": 138.87, "end": 139.614, "line": 11}, {"i": 81, "start": 139.614, "end": 141.588, "line": 11}, {"i": 82, "start": 141.588, "end": 142.011, "line": 11}, {"i": 83, "start": 142.011, "end": 142.439, "line": 11}, {"i": 84, "start": 142.439, "end": 142.883, "line": 11}, {"i": 85, "start": 142.883, "end": 143.67485714285715, "line": 11}, {"i": 86, "start": 147.457, "end": 147.873, "line": 12}, {"i": 87, "start": 147.873, "end": 148.717, "line": 12}, {"i": 88, "start": 148.717, "end": 149.095, "line": 12}, {"i": 89, "start": 149.095, "end": 150.081, "line": 12}, {"i": 90, "start": 150.081, "end": 150.434, "line": 12}, {"i": 91, "start": 150.434, "end": 150.812, "line": 12}, {"i": 92, "start": 150.812, "end": 152.554, "line": 12}, {"i": 93, "start": 152.554, "end": 153.024, "line": 12}, {"i": 94, "start": 153.024, "end": 153.719875, "line": 12}, {"i": 95, "start": 160.684, "end": 160.991, "line": 13}, {"i": 96, "start": 160.991, "end": 161.297, "line": 13}, {"i": 97, "start": 161.297, "end": 161.547, "line": 13}, {"i": 98, "start": 161.547, "end": 161.773, "line": 13}, {"i": 99, "start": 161.773, "end": 162.246, "line": 13}, {"i": 100, "start": 162.246, "end": 162.58, "line": 13}, {"i": 101, "start": 162.58, "end": 162.893, "line": 13}, {"i": 102, "start": 162.893, "end": 163.293, "line": 13}, {"i": 103, "start": 166.52, "end": 167.4, "line": 14}, {"i": 104, "start": 167.4, "end": 169.151, "line": 14}, {"i": 105, "start": 169.151, "end": 169.554, "line": 14}, {"i": 106, "start": 169.554, "end": 170.037, "line": 14}, {"i": 107, "start": 170.037, "end": 170.91625, "line": 14}, {"i": 108, "start": 173.12, "end": 173.854, "line": 15}, {"i": 109, "start": 173.854, "end": 174.062, "line": 15}, {"i": 110, "start": 174.062, "end": 174.694, "line": 15}, {"i": 111, "start": 174.694, "end": 175.289, "line": 15}, {"i": 112, "start": 175.289, "end": 179.525, "line": 15}, {"i": 113, "start": 179.525, "end": 180.014, "line": 15}, {"i": 114, "start": 180.014, "end": 181.562, "line": 15}, {"i": 115, "start": 181.562, "end": 183.493, "line": 15}, {"i": 116, "start": 183.493, "end": 184.789625, "line": 15}, {"i": 117, "start": 192.84, "end": 192.99, "line": 16}, {"i": 118, "start": 192.99, "end": 195.869, "line": 16}, {"i": 119, "start": 195.869, "end": 196.489, "line": 16}, {"i": 120, "start": 196.489, "end": 197.70533333333333, "line": 16}, {"i": 121, "start": 202.567, "end": 202.957, "line": 17}, {"i": 122, "start": 202.957, "end": 203.567, "line": 17}, {"i": 123, "start": 203.567, "end": 204.076, "line": 17}, {"i": 124, "start": 204.076, "end": 204.468, "line": 17}, {"i": 125, "start": 204.468, "end": 205.222, "line": 17}, {"i": 126, "start": 205.222, "end": 208.133, "line": 17}, {"i": 127, "start": 208.133, "end": 211.641, "line": 17}, {"i": 128, "start": 211.641, "end": 212.18, "line": 17}, {"i": 129, "start": 212.18, "end": 213.381625, "line": 17}, {"i": 130, "start": 224.061, "end": 224.471, "line": 18}, {"i": 131, "start": 224.471, "end": 224.805, "line": 18}, {"i": 132, "start": 224.805, "end": 225.103, "line": 18}, {"i": 133, "start": 225.103, "end": 225.483, "line": 18}, {"i": 134, "start": 225.483, "end": 225.883, "line": 18}, {"i": 135, "start": 227.81, "end": 228.16, "line": 19}, {"i": 136, "start": 228.16, "end": 228.281, "line": 19}, {"i": 137, "start": 228.281, "end": 228.615, "line": 19}, {"i": 138, "start": 228.615, "end": 228.943, "line": 19}, {"i": 139, "start": 228.943, "end": 229.246, "line": 19}, {"i": 140, "start": 229.246, "end": 231.007, "line": 19}, {"i": 141, "start": 231.007, "end": 231.274, "line": 19}, {"i": 142, "start": 231.274, "end": 231.661, "line": 19}, {"i": 143, "start": 231.661, "end": 232.289, "line": 19}, {"i": 144, "start": 232.289, "end": 232.549, "line": 19}, {"i": 145, "start": 232.549, "end": 237.981, "line": 19}, {"i": 146, "start": 237.981, "end": 238.90563636363635, "line": 19}, {"i": 147, "start": 243.88, "end": 244.251, "line": 20}, {"i": 148, "start": 244.251, "end": 244.649, "line": 20}, {"i": 149, "start": 244.649, "end": 244.861, "line": 20}, {"i": 150, "start": 244.861, "end": 245.233, "line": 20}, {"i": 151, "start": 245.233, "end": 246.431, "line": 20}, {"i": 152, "start": 246.431, "end": 247.675, "line": 20}, {"i": 153, "start": 247.675, "end": 249.754, "line": 20}, {"i": 154, "start": 249.754, "end": 250.06, "line": 20}, {"i": 155, "start": 250.06, "end": 250.97, "line": 20}, {"i": 156, "start": 250.97, "end": 251.7577777777778, "line": 20}, {"i": 157, "start": 255.019, "end": 256.359, "line": 21}, {"i": 158, "start": 256.359, "end": 259.957, "line": 21}, {"i": 159, "start": 259.957, "end": 261.757, "line": 21}];
+const ENVELOPE = null;
+const SETTINGS = Object.assign({ hold: 0, fade: 5, lead: 0.5, manual_ends: [], works: [] }, {"hold": 0, "fade": 5, "lead": 0.5, "works": [3, 9, 11, 17, 18, 23, 25, 26, 28, 29, 32], "manual_ends": [], "saved_at": "2026-09-21T14:08:01"} || {});
+const DOT = {"a":"0111000011111111001111101","b":"1000011000111111100101110","c":"0111011001100001100101110","d":"0000100011011111001111110","e":"0111010011111111000001110","f":"0111111000111101000010000","g":"0111111001111110001101110","h":"1000010000111111100110001","i":"1110001100001000011000111","j":"0001100001000011101101110","k":"1000010110111001011010011","l":"1000010000110001101101111","m":"1001011011111111010110101","n":"1011011111110011000110001","o":"0111011001100011001101110","p":"0111111001111101000010000","q":"0111010011111110000100001","r":"0111111001100001000010000","s":"0111111000001000001111110","t":"1000011100100001101101110","u":"1000110001100111111101101","w":"1000110101101011111101010","x":"1000111011011101101110001","y":"1100100101001100010011000","z":"1111100011001001100011111","0":"0111010111101011110101110","1":"0011101011110010001100011","2":"0111011011000100110011111","3":"0111010011001101001101110","4":"1000111001011110000100001","5":"1111110000111110001111110","6":"0111111000111111100101110","7":"0111111001000110011001100","8":"0111011001011101001101110","9":"0111011001111110001101110","_":"0000000000000000000000000",":":"1100011000000001100011000",".":"0000000000000001100011000",",":"0000000000000001100001000",";":"1100011000000001100001000"};
+const N_WORKS = 33;
+const Q = new URLSearchParams(location.search);
+const EDIT = !!Q.get('edit');
+if (Q.get('lead') != null) SETTINGS.lead = parseFloat(Q.get('lead'));
+let OFFSET = EDIT ? 0 : (Q.get('offset') != null ? parseFloat(Q.get('offset')) : -SETTINGS.lead);   // negative = words run ahead of the audio
+if (Q.get('hold') != null) SETTINGS.hold = parseFloat(Q.get('hold'));
+if (Q.get('fade') != null) SETTINGS.fade = parseFloat(Q.get('fade'));
+if (Q.get('debug')) document.body.classList.add('debug');
+const litEnd = w => (SETTINGS.hold > 0 ? w.start + SETTINGS.hold : w.end);
+function applyFade() { document.documentElement.style.setProperty('--fade', SETTINGS.fade + 's'); }
+applyFade();
+
+const a = document.getElementById('a'), poem = document.getElementById('poem'), bar = document.getElementById('bar'),
+      tm = document.getElementById('time'), dbg = document.getElementById('dbg'), countEl = document.getElementById('count');
+const els = Array.from(document.querySelectorAll('.w'));
+const lineEls = Array.from(document.querySelectorAll('.line'));
+const lineOf = els.map(el => el.closest('.line'));
+const lineStart = {}, lineEnd = {};
+for (const w of WORDS) { if (w.start == null) continue; const L = lineOf[w.i];
+  lineStart[L.dataset.l] = Math.min(lineStart[L.dataset.l] ?? 1e9, w.start); lineEnd[L.dataset.l] = Math.max(lineEnd[L.dataset.l] ?? -1, w.end); }
+const SPEECH_START = Math.min(...WORDS.filter(w => w.start != null).map(w => w.start));
+const SPEECH_END   = Math.max(...WORDS.filter(w => w.end   != null).map(w => w.end));
+
+let camY = null, raf = null;
+function fmt(s){ s = Math.max(0, s|0); return (s/60|0) + ':' + String(s%60).padStart(2,'0'); }
+function focusLine(t) {
+  let cur = null, upcoming = null, last = null;
+  for (const L of lineEls) { const k = L.dataset.l, s = lineStart[k], e = lineEnd[k]; if (s == null) continue;
+    if (t >= s - 0.35 && t <= e + 0.9) { cur = L; break; }
+    if (t < s) { if (!upcoming) upcoming = L; } else last = L; }
+  if (cur) return cur;
+  if (upcoming && lineStart[upcoming.dataset.l] - t < 1.6) return upcoming;
+  return last || upcoming;
+}
+let paint = function(t) {
+  t -= OFFSET;
+  for (const w of WORDS) { const el = els[w.i]; if (!el || w.start == null) continue;
+    const le = litEnd(w); let c = 'w';
+    if (t >= w.start && t < le + 0.03) c = 'w lit';
+    else if (t >= le + 0.03) c = 'w done';
+    if (el.className !== c) el.className = c; }
+  const F = focusLine(t);
+  for (const L of lineEls) { const k = L.dataset.l; let c = 'line';
+    if (L === F) c = 'line focus';
+    else if (lineEnd[k] != null && t > lineEnd[k]) c = 'line past';
+    else if (F && lineStart[k] != null && lineStart[k] > (lineStart[F.dataset.l] ?? 0) && lineStart[k] - t < 14) c = 'line next';
+    if (L.className !== c) L.className = c; }
+  bar.style.width = (a.duration ? (t / a.duration * 100) : 0) + '%'; tm.textContent = fmt(t);
+  if (document.body.classList.contains('debug')) {
+    const lit = WORDS.find(w => w.start != null && t >= w.start && t < litEnd(w) + 0.12);
+    dbg.textContent = 't ' + t.toFixed(2) + (lit ? '  ' + els[lit.i].textContent + '  ' + lit.start.toFixed(2) + '–' + lit.end.toFixed(2) : '') + '  fig ' + JSON.stringify(figState(t), (k, v) => typeof v === 'number' ? +v.toFixed(2) : v); }
+  return F;
+};
+let camApplied = 0;                                           // the translate actually on #poem right now
+function camera(F) {
+  if (!F) return;
+  const r = F.getBoundingClientRect();
+  const pr = document.getElementById('piece').getBoundingClientRect();
+  const avail = EDIT ? window.innerHeight - 178 : pr.height;
+  const target = camApplied + ((EDIT ? 0 : pr.top) + avail / 2 - (r.top + r.height / 2));   // the rect already includes camApplied, so add the correction to it
+  camY = (camY == null) ? target : (Math.abs(target - camY) < 0.05 ? target : camY + (target - camY) * 0.035);
+  camApplied = camY;
+  poem.style.transform = 'translate3d(0,' + camY.toFixed(3) + 'px,0)';
+}
+
+// ---------- the figures: only in the silences. One body per pause of MIN_GAP seconds or more between lines. ----------
+const MIN_GAP = 4.8, D_MAX = 8.0, D_MIN = 2.5, LEAD_IN = 2.0, TAIL = 1.2;   // slower fades; a body begins condensing under the last words and finishes dissolving under the first of the next line                     // 4.8: the eleventh pause is 4.86 s; the next one down is 4.6
+const LINES = lineEls.map(L => ({ s: lineStart[L.dataset.l], e: lineEnd[L.dataset.l], el: L })).filter(x => x.s != null).sort((x, y) => x.s - y.s);
+const PAUSES = [];
+for (let k = 0; k < LINES.length - 1; k++) { const gap = LINES[k + 1].s - LINES[k].e; if (gap >= MIN_GAP) PAUSES.push({ from: LINES[k].e, to: LINES[k + 1].s, gap, nextEl: LINES[k + 1].el }); }
+const FIT = PAUSES.length;
+function chosenWorks() {                                              // his selection if any (?works= or the saved setting), else a random draw, one per pause
+  const src = Q.get('works') ? Q.get('works').split(',') : (SETTINGS.works && SETTINGS.works.length ? SETTINGS.works : null);
+  let o = src ? src.map(x => parseInt(x, 10) - 1).filter((x, i, arr) => x >= 0 && x < N_WORKS && arr.indexOf(x) === i) : null;
+  if (!o) { o = Array.from({ length: N_WORKS }, (_, i) => i); for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; } }
+  else if (Q.get('shuffle')) for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; }
+  return o.slice(0, FIT);
+}
+const ORDER = chosenWorks();
+PAUSES.forEach((P, k) => { P.work = ORDER[k];
+  P.t0 = P.from - LEAD_IN; P.t1 = P.to + TAIL;
+  const d = Math.max(D_MIN, Math.min(D_MAX, (P.t1 - P.t0 - 0.6) / 2));
+  P.inEnd = P.t0 + d; P.outStart = P.t1 - d;
+  P.textOut = [P.from, P.from + 1.0]; P.textIn = [P.to - 1.2, P.to - 0.1]; });   // the poem dissolves out after the line and returns just before the next
+function textAlpha(t) {
+  for (const P of PAUSES) { if (t < P.textOut[0] || t > P.textIn[1]) continue;
+    if (t <= P.textOut[1]) return 1 - ease((t - P.textOut[0]) / (P.textOut[1] - P.textOut[0]));
+    if (t >= P.textIn[0]) return ease((t - P.textIn[0]) / (P.textIn[1] - P.textIn[0]));
+    return 0; }
+  return 1;
+}
+const T0 = PAUSES.length ? PAUSES[0].t0 : 0, T1 = PAUSES.length ? PAUSES[PAUSES.length - 1].t1 : 1, SLOT = 16;
+const START_OF = {}; PAUSES.forEach(P => START_OF[P.work] = P.t0);
+const ease = x => { x = Math.max(0, Math.min(1, x)); return x * x * x * (x * (x * 6 - 15) + 10); };
+function blurOf(inB, outA) { if (outA > 0) return 0.35 + 1.9 * outA; if (inB < 1) return 0.35 + 2.3 * Math.pow(1 - inB, 1.4); return 0.35; }
+function figState(t) {
+  let k = -1; for (let i = 0; i < PAUSES.length; i++) if (t >= PAUSES[i].t0 && t < PAUSES[i].t1) { k = i; break; }
+  if (k < 0) { const nxt = PAUSES.findIndex(P => P.t0 > t); const w = nxt >= 0 ? PAUSES[nxt].work : (PAUSES.length ? PAUSES[PAUSES.length - 1].work : 0);
+    return { a: w, b: w, outA: 1, inB: 0, phase: 'none', slot: Math.max(0, nxt) }; }
+  const P = PAUSES[k]; let inB = 1, outA = 0, phase = 'hold';
+  if (t < P.inEnd) { inB = ease((t - P.t0) / (P.inEnd - P.t0)); phase = 'in'; }
+  else if (t >= P.outStart) { outA = ease((t - P.outStart) / (P.t1 - P.outStart)); phase = 'out'; }
+  return { a: P.work, b: P.work, outA, inB, phase, slot: k, single: true };
+}
+// ---------- WebGL layer ----------
+const canvas = document.getElementById('gl'); let gl = null, prog = null, U = {}, tex = new Map(), loading = new Set(), placeholder = null;
+const VS = `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p, 0., 1.); }`;
+const FS = `#version 300 es
+precision highp float;
+uniform vec2 uRes; uniform float uTime; uniform sampler2D uA; uniform sampler2D uB;
+uniform vec4 uRectA; uniform vec4 uRectB; uniform float uOutA; uniform float uInB; uniform float uFog; uniform float uBlurA; uniform float uBlurB; uniform float uVoice;
+out vec4 o;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+float noise(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
+  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x), f.y); }
+float fbm(vec2 p){ float v=0., a=.5; for(int i=0;i<5;i++){ v+=a*noise(p); p=p*2.03+vec2(17.,9.); a*=.5; } return v; }
+vec3 fig(sampler2D t, vec4 r, vec2 px, float lod){
+  vec2 uv=(px-r.xy)/r.zw; float inside=step(0.,uv.x)*step(uv.x,1.)*step(0.,uv.y)*step(uv.y,1.);
+  vec3 c=vec3(1.);
+  if(inside>0.){ // 5-tap blur across mip levels: mip gives the size, taps smooth the blockiness
+    vec2 d=vec2(pow(2.,lod))/vec2(1000.,1500.)*0.9;
+    c=(textureLod(t,uv,lod).rgb*2.+textureLod(t,uv+vec2(d.x,0),lod).rgb+textureLod(t,uv-vec2(d.x,0),lod).rgb+textureLod(t,uv+vec2(0,d.y),lod).rgb+textureLod(t,uv-vec2(0,d.y),lod).rgb)/6.; }
+  return c;
+}
+void main(){
+  vec2 px=vec2(gl_FragCoord.x, uRes.y-gl_FragCoord.y); vec2 q=px/uRes; float asp=uRes.x/uRes.y;
+  vec3 ca=fig(uA,uRectA,px,uBlurA); vec3 cb=fig(uB,uRectB,px,uBlurB);
+  vec2 p=q*vec2(asp,1.)*1.55;
+  vec2 wv=vec2(fbm(p*0.85+vec2(uTime*0.017,-uTime*0.012)), fbm(p*0.85+vec2(4.7,2.1)+vec2(-uTime*0.014, uTime*0.016)));
+  float e=0.4; float n=fbm(p+(wv-0.5)*1.5+vec2(uTime*0.006,-uTime*0.004));   // domain-warped: the edge flows instead of eroding
+  float pA=1.-smoothstep(n-e, n+e, uOutA*(1.+2.*e)-e);       // outgoing body: present where the fog has not yet reached
+  float pB=smoothstep(n-e, n+e, uInB*(1.+2.*e)-e);           // incoming body: present where the fog has thinned
+  vec3 col=vec3(1.)-((vec3(1.)-ca)*pA+(vec3(1.)-cb)*pB);
+  float f=fbm(q*vec2(asp,1.)*1.25+vec2(-uTime*0.013, uTime*0.009));
+  float f2=fbm(q*vec2(asp,1.)*3.1+vec2(uTime*0.019, uTime*0.012));
+  float fog=clamp(uFog*(0.25+0.55*f+0.2*f2),0.,1.);
+  col=mix(col, vec3(1.), fog);
+  col+= (hash(px+fract(uTime))-.5)*0.03;
+  o=vec4(col,1.);
+}`;
+function initGL() {
+  gl = canvas.getContext('webgl2', { antialias: false, alpha: false, powerPreference: 'high-performance' }); if (!gl) return false;
+  const sh = (t, s) => { const h = gl.createShader(t); gl.shaderSource(h, s); gl.compileShader(h); if (!gl.getShaderParameter(h, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(h)); return h; };
+  prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  for (const n of ['uRes','uTime','uA','uB','uRectA','uRectB','uOutA','uInB','uFog','uBlurA','uBlurB','uVoice']) U[n] = gl.getUniformLocation(prog, n);
+  placeholder = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, placeholder); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255,255,255,255]));
+  return true;
+}
+const loadedWorks = new Set();
+function ensure(i) {
+  if (i < 0 || i >= N_WORKS || tex.has(i) || loading.has(i)) return; loading.add(i);
+  fetch('/images/homo-sync/' + String(i + 1).padStart(2, '0') + '.webp').then(r => r.blob()).then(b => createImageBitmap(b, { premultiplyAlpha: 'none', colorSpaceConversion: 'none' })).then(bm => {
+    const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, bm); gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    tex.set(i, t); loadedWorks.add(i); loading.delete(i); bm.close && bm.close();
+  }).catch(() => loading.delete(i));
+}
+function evict(keep) { for (const [i, t] of tex) if (!keep.has(i)) { gl.deleteTexture(t); tex.delete(i); } }
+const PLACE = (() => {                                // one place per body, drawn fresh each play: left or right of the poem, never behind it
+  let seed = (Math.random() * 1e9) | 0; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  const out = []; let side = rnd() < 0.5 ? -1 : 1;
+  for (let i = 0; i < N_WORKS; i++) { out.push({ side, u: rnd(), h: 0.98 + rnd() * 0.06, y: (rnd() - 0.5) * 0.02 }); side = rnd() < 0.7 ? -side : side; }
+  return out; })();
+function rectFor(i, t, W, H) {                                   // every body stands in the centre; the poem has dissolved away while it is there
+  const tt = Math.max(0, (t - (START_OF[i] ?? T0)) / SLOT);
+  const P = PLACE[i] || PLACE[0];
+  let h = H * (P.h + 0.02 * tt), w = h * 2 / 3;
+  // the figure occupies about 8%–92% of the image height; stand it on its feet above the player line, and keep the head in view
+  const FEET = 0.92, HEAD = 0.08, floor = H * 0.885 + P.y * H, ceiling = H * 0.03;
+  if (floor - FEET * h + HEAD * h < ceiling) { h = (floor - ceiling) / (FEET - HEAD); w = h * 2 / 3; }
+  const side = [0, 0.012, -0.01, 0.016, -0.006][i % 5];
+  const x = (W - w) / 2 + side * W + Math.sin(i * 1.7 + tt * 0.6) * 5, y = floor - FEET * h - tt * 0.006 * H;
+  return [x, y, w, h];
+}
+let glTime = 0, lastFrame = performance.now(), fpsAcc = [];
+function drawGL(t) {
+  if (!gl) return;
+  const W = canvas.clientWidth * Math.min(devicePixelRatio, 2), H = canvas.clientHeight * Math.min(devicePixelRatio, 2);
+  if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; gl.viewport(0, 0, W, H); }
+  const st = figState(t);
+  const WIDE = canvas.clientWidth >= 900;
+  if (WIDE) { if (!window.__preloaded) { window.__preloaded = true; ORDER.forEach((w, k) => setTimeout(() => ensure(w), 150 + k * 260)); } }
+  else { const nx1 = PAUSES[st.slot + 1] && PAUSES[st.slot + 1].work; ensure(st.b); if (nx1 != null) ensure(nx1); evict(new Set([st.b, nx1].filter(x => x != null))); }
+  ensure(st.b);
+  const now = performance.now(); const dt = Math.min(0.1, (now - lastFrame) / 1000); lastFrame = now; glTime += dt;
+  fpsAcc.push(dt); if (fpsAcc.length > 120) fpsAcc.shift();
+  const r = rectFor(st.b, t, W, H);
+  const leaving = st.phase === 'out', present = st.phase === 'in' || st.phase === 'hold';
+  gl.useProgram(prog);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex.get(st.b) || placeholder); gl.uniform1i(U.uA, 0);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tex.get(st.b) || placeholder); gl.uniform1i(U.uB, 1);
+  gl.uniform2f(U.uRes, W, H); gl.uniform1f(U.uTime, glTime);
+  gl.uniform4f(U.uRectA, ...r); gl.uniform4f(U.uRectB, ...r);
+  gl.uniform1f(U.uOutA, leaving ? st.outA : 1); gl.uniform1f(U.uInB, present ? st.inB : 0);
+  gl.uniform1f(U.uFog, 0.24);
+  gl.uniform1f(U.uBlurA, blurOf(1, st.outA)); gl.uniform1f(U.uBlurB, blurOf(st.inB, 0));
+  gl.uniform1f(U.uVoice, 0);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  countEl.textContent = (st.phase === 'none' ? '' : String(st.b + 1).padStart(2, '0') + ' / ' + N_WORKS);   // the work's own number, only while a body is there
+}
+window.frameStats = () => { const s = fpsAcc.reduce((x, y) => x + y, 0); return { frames: fpsAcc.length, avgMs: +(s / fpsAcc.length * 1000).toFixed(1), worstMs: +(Math.max(...fpsAcc) * 1000).toFixed(1), works: loadedWorks.size }; };
+
+function loop() { const t = a.currentTime; let F = paint(t); const tt = t - OFFSET; const al = EDIT ? 1 : textAlpha(tt); poem.style.opacity = al.toFixed(3);
+  let hold = false;
+  if (!EDIT) { const P = PAUSES.find(P => tt >= P.textOut[0] && tt <= P.textIn[1] + 0.05);
+    if (P) { if (tt < P.textOut[1]) hold = true;                   // leaving: the camera does not move at all
+             else { F = P.nextEl; camY = null; } } }              // gone or returning: sit on the next line, no easing, nothing to see moving
+  if (!hold) camera(F); drawGL(t); raf = requestAnimationFrame(loop); }
+function toggle(){ if (a.ended) { a.currentTime = 0; document.body.classList.remove('ended'); }
+  if (a.paused) a.play(); else a.pause(); }
+a.addEventListener('play',  () => { document.body.classList.add('playing'); });
+a.addEventListener('pause', () => { document.body.classList.remove('playing'); });
+a.addEventListener('ended', () => { document.body.classList.remove('playing'); document.body.classList.add('ended'); });
+document.getElementById('piece').addEventListener('click', toggle);
+document.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); toggle(); }
+  if (EDIT) return;
+  if (e.code === 'ArrowLeft')  a.currentTime = Math.max(0, a.currentTime - 5);
+  if (e.code === 'ArrowRight') a.currentTime = Math.min(a.duration || 0, a.currentTime + 5); });
+if (!EDIT) { try { if (!initGL()) console.warn('no webgl2'); } catch (e) { console.error('gl', e); gl = null; } }
+function dots(str, size, gap) {                       // the SYS ProtoTypeface: 5x5 dot bitmaps drawn as circles; each glyph advances by its own width
+  const pitch = size + gap; let x = 0, out = '';
+  for (const raw of String(str).toLowerCase()) {
+    const b = DOT[raw === ' ' ? '_' : raw]; if (!b) { x += 3 * pitch; continue; }
+    const cols = []; for (let c = 0; c < 5; c++) for (let r = 0; r < 5; r++) if (b[r * 5 + c] === '1') { cols.push(c); break; }
+    const c0 = cols.length ? Math.min(...cols) : 0, c1 = cols.length ? Math.max(...cols) : 2;
+    for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) if (b[r * 5 + c] === '1')
+      out += '<circle cx="' + (x + (c - c0) * pitch + size / 2).toFixed(2) + '" cy="' + (r * pitch + size / 2).toFixed(2) + '" r="' + (size / 2).toFixed(2) + '"/>';
+    x += (c1 - c0 + 1) * pitch + pitch;                  // glyph width plus one column of air
+  }
+  const w = Math.max(1, x - pitch), h = 5 * pitch - gap;
+  return '<svg width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" viewBox="0 0 ' + w.toFixed(1) + ' ' + h.toFixed(1) + '" fill="currentColor" aria-label="' + str + '">' + out + '</svg>';
+}
+document.getElementById('endmark').innerHTML = document.getElementById('titlegrid').innerHTML;
+camera(paint(0)); camY = null; camera(paint(0));
+cancelAnimationFrame(raf); loop();
+// ---- fullscreen view of a work ----
+const view = document.getElementById('view'), viewimg = document.getElementById('viewimg'), viewcap = document.getElementById('viewcap'); let viewN = 0;
+function openWork(n) { viewN = n; viewimg.src = '/images/homo-sync/' + String(n).padStart(2, '0') + '.webp'; viewcap.textContent = String(n).padStart(2, '0') + ' / ' + N_WORKS; view.classList.add('on'); }
+function closeWork() { view.classList.remove('on'); }
+document.querySelectorAll('.work').forEach((el, i) => el.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); openWork(i + 1); }));
+view.addEventListener('click', e => { e.stopPropagation(); closeWork(); });
+document.addEventListener('keydown', e => { if (!view.classList.contains('on')) return;
+  if (e.code === 'Escape') closeWork(); else if (e.code === 'ArrowRight') openWork(viewN % N_WORKS + 1); else if (e.code === 'ArrowLeft') openWork((viewN + N_WORKS - 2) % N_WORKS + 1); }, true);
+if (!EDIT && 'IntersectionObserver' in window) { const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.work').forEach(el => io.observe(el)); }
+// ---- seek bar (all modes) ----
+const seek = document.getElementById('seek');
+seek.addEventListener('click', e => { e.stopPropagation(); const r = seek.getBoundingClientRect(); if (a.duration) { a.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * a.duration; camera(paint(a.currentTime)); } });
+
+// ---- editor: ?edit=1 ----
+if (EDIT) {
+  document.body.classList.add('edit');
+  const ENV = typeof ENVELOPE !== 'undefined' ? ENVELOPE : null;          // 20 ms vocal-energy envelope, 0..255
+  const starts = WORDS.map(w => w.start), orig = starts.slice(); let sel = 0, drag = null;
+  const ends = WORDS.map((w, i) => (SETTINGS.manual_ends || []).includes(i) ? w.end : null);   // manual END overrides, null = derived from the next word
+  // restore from this browser only if it is newer than what the page was built from
+  try { let sv = JSON.parse(localStorage.getItem('iwish-edit') || 'null');
+    if (Array.isArray(sv) && sv.length === starts.length) sv = { starts: sv, saved_at: '9' };   // edits from the first editor version: keep them, they will be saved to disk
+    if (sv && sv.starts && sv.starts.length === starts.length && (!SETTINGS.saved_at || (sv.saved_at || '') > SETTINGS.saved_at)) {
+      sv.starts.forEach((v, i) => { if (v != null) starts[i] = v; }); if (sv.ends) sv.ends.forEach((v, i) => ends[i] = v); Object.assign(SETTINGS, sv.settings || {}); applyFade(); } } catch (e) {}
+  const wordsByLine = {}; WORDS.forEach((w, i) => (wordsByLine[w.line] = wordsByLine[w.line] || []).push(i));
+  function endOf(i) { if (ends[i] != null) return Math.max(starts[i] + 0.08, ends[i]);
+    const L = wordsByLine[WORDS[i].line], k = L.indexOf(i);
+    if (k + 1 < L.length && starts[L[k + 1]] != null) return Math.max(starts[i] + 0.12, starts[L[k + 1]]);
+    const gaps = L.slice(0, -1).map((j, q) => starts[L[q + 1]] - starts[j]).filter(g => g > 0); const d = gaps.length ? gaps.reduce((x, y) => x + y) / gaps.length : 0.7;
+    return starts[i] + Math.min(1.8, Math.max(0.4, d)); }
+  let saveTimer = null; const savestat = document.getElementById('savestat');
+  function saveNow() { const j = exportJSON();
+    fetch('/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: j }).then(r => r.json()).then(r => {
+      savestat.textContent = r.ok ? 'saved ' + r.saved_at.slice(11) : 'save failed: ' + (r.error || r.build);
+    }).catch(() => { savestat.textContent = 'browser only · run serve.py to save'; }); }
+  function apply() { WORDS.forEach((w, i) => { w.start = starts[i]; w.end = starts[i] == null ? null : endOf(i); });
+    const now = new Date(); const stamp = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + 'T' + now.toTimeString().slice(0, 8);
+    try { localStorage.setItem('iwish-edit', JSON.stringify({ starts, ends, settings: { hold: SETTINGS.hold, fade: SETTINGS.fade, lead: SETTINGS.lead, works: SETTINGS.works }, saved_at: stamp })); } catch (e) {}
+    clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 1200); savestat.textContent = 'saving';
+    for (const k in lineStart) delete lineStart[k]; for (const k in lineEnd) delete lineEnd[k];
+    for (const w of WORDS) { if (w.start == null) continue; const L = lineOf[w.i].dataset.l; lineStart[L] = Math.min(lineStart[L] ?? 1e9, w.start); lineEnd[L] = Math.max(lineEnd[L] ?? -1, w.end); } }
+  const pp = document.getElementById('pp'), et = document.getElementById('et'), rng = document.getElementById('rng'), strip = document.getElementById('strip'),
+        stat = document.getElementById('edstat'), out = document.getElementById('out'), ctx = strip.getContext('2d');
+  const fmt2 = s => (s / 60 | 0) + ':' + (s % 60).toFixed(2).padStart(5, '0');
+  function exportJSON() { return JSON.stringify({ method: 'edited-by-author', settings: { hold: SETTINGS.hold, fade: SETTINGS.fade, lead: SETTINGS.lead, works: SETTINGS.works, manual_ends: ends.map((e, i) => e != null ? i : -1).filter(i => i >= 0) },
+    words: WORDS.map((w, i) => ({ word: els[i].textContent.replace(/[,.]/g, '').toLowerCase(), start: starts[i], end: w.end, line: w.line })) }); }
+  function markSel() { els.forEach((el, i) => { el.classList.toggle('sel', i === sel); el.classList.toggle('set', starts[i] != null && starts[i] !== orig[i]); });
+    const n = starts.filter((v, i) => v !== orig[i]).length; stat.textContent = 'word ' + (sel + 1) + '/' + els.length + ' · ' + n + ' edited';
+    const el = els[sel], r = el.getBoundingClientRect(); }
+  let SPAN = 6; try { SPAN = parseFloat(localStorage.getItem('iwish-span')) || 6; } catch (e) {}
+  const spanv = document.getElementById('spanv'); function setSpan(v) { SPAN = Math.min(40, Math.max(2, v)); spanv.textContent = SPAN.toFixed(0) + ' s'; try { localStorage.setItem('iwish-span', SPAN); } catch (e) {} drawStrip(); }
+  function drawStrip() {
+    const W = strip.width = strip.clientWidth * devicePixelRatio, H = strip.height = strip.clientHeight * devicePixelRatio; const t = a.currentTime;
+    ctx.clearRect(0, 0, W, H); const x = s => (s - (t - SPAN / 2)) / SPAN * W;
+    if (ENV) { ctx.fillStyle = 'rgba(255,255,255,.16)'; const f0 = Math.max(0, Math.floor((t - SPAN / 2) / 0.02)), f1 = Math.min(ENV.length, Math.ceil((t + SPAN / 2) / 0.02));
+      const step = Math.max(1, Math.floor((f1 - f0) / (W / devicePixelRatio)));
+      for (let f = f0; f < f1; f += step) { let v = 0; for (let q = f; q < Math.min(f1, f + step); q++) v = Math.max(v, ENV[q]); const h = v / 255 * H; ctx.fillRect(x(f * 0.02), H - h, Math.max(1, W / (SPAN / 0.02) * step), h); } }
+    ctx.font = (10 * devicePixelRatio) + 'px ui-monospace, Menlo, monospace';
+    WORDS.forEach((w, i) => { if (starts[i] == null) return; const px = x(starts[i]); if (px < -60 || px > W + 60) return;
+      const pe = x(litEnd(w)); ctx.fillStyle = i === sel ? 'rgba(255,255,255,.22)' : 'rgba(255,255,255,.09)'; ctx.fillRect(px, H * 0.55, Math.max(2, pe - px), H * 0.45);
+      ctx.strokeStyle = i === sel ? '#fff' : 'rgba(255,255,255,.45)'; ctx.lineWidth = (i === sel ? 2 : 1) * devicePixelRatio;
+      ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, H); ctx.stroke();
+      if (SPAN <= 16) { ctx.fillStyle = i === sel ? '#fff' : 'rgba(255,255,255,.6)'; ctx.fillText(els[i].textContent, px + 3 * devicePixelRatio, 11 * devicePixelRatio + (i % 3) * 12 * devicePixelRatio); } });
+    ctx.strokeStyle = '#ff6'; ctx.lineWidth = devicePixelRatio; ctx.beginPath(); ctx.moveTo(W / 2, 0); ctx.lineTo(W / 2, H); ctx.stroke();
+    et.textContent = fmt2(t); if (!drag) rng.value = a.duration ? Math.round(t / a.duration * 1000) : 0; pp.textContent = a.paused ? 'play' : 'pause'; }
+  function seekTo(t) { a.currentTime = Math.max(0, Math.min(a.duration || 1e9, t)); camera(paint(a.currentTime)); drawStrip(); }
+  function setSel(i) { sel = Math.max(0, Math.min(els.length - 1, i)); markSel(); drawStrip(); }
+  function setNow() { starts[sel] = +a.currentTime.toFixed(3); apply(); if (sel < els.length - 1) setSel(sel + 1); else markSel(); drawStrip(); }
+  function setEndNow() { ends[sel] = +a.currentTime.toFixed(3); apply(); markSel(); drawStrip(); }
+  const hold = document.getElementById('hold'), fade = document.getElementById('fade'), holdv = document.getElementById('holdv'), fadev = document.getElementById('fadev');
+  const lead = document.getElementById('lead'), leadv = document.getElementById('leadv');
+  function showSettings() { hold.value = SETTINGS.hold; fade.value = SETTINGS.fade; lead.value = SETTINGS.lead; holdv.textContent = SETTINGS.hold > 0 ? SETTINGS.hold.toFixed(2) + ' s' : 'until next word'; fadev.textContent = SETTINGS.fade.toFixed(1) + ' s'; leadv.textContent = (SETTINGS.lead >= 0 ? '+' : '') + SETTINGS.lead.toFixed(2) + ' s'; }
+  lead.addEventListener('input', e => { e.stopPropagation(); SETTINGS.lead = parseFloat(lead.value); showSettings(); apply(); });
+  lead.addEventListener('click', e => e.stopPropagation());
+  hold.addEventListener('input', e => { e.stopPropagation(); SETTINGS.hold = parseFloat(hold.value); showSettings(); apply(); drawStrip(); camera(paint(a.currentTime)); });
+  fade.addEventListener('input', e => { e.stopPropagation(); SETTINGS.fade = parseFloat(fade.value); applyFade(); showSettings(); apply(); });
+  [hold, fade].forEach(el => el.addEventListener('click', e => e.stopPropagation()));
+  showSettings();
+  const workbtns = document.getElementById('workbtns'), workstat = document.getElementById('workstat');
+  function showWorks() { const sel = SETTINGS.works || [];
+    workbtns.innerHTML = Array.from({ length: N_WORKS }, (_, i) => '<button data-n="' + (i + 1) + '" class="' + (sel.includes(i + 1) ? 'on' : '') + '" title="' + (sel.indexOf(i + 1) >= 0 ? 'position ' + (sel.indexOf(i + 1) + 1) : 'not shown') + '">' + String(i + 1).padStart(2, '0') + '</button>').join('');
+    workstat.textContent = (sel.length ? sel.length : FIT) + ' chosen · ' + FIT + ' pauses ≥ ' + MIN_GAP + ' s' + (sel.length > FIT ? ' · only the first ' + FIT + ' play' : '') + (sel.length ? ' · order: ' + sel.map(n => String(n).padStart(2, '0')).join(' ') : ' · random draw each play'); }
+  workbtns.addEventListener('click', e => { e.stopPropagation(); const b = e.target.closest('button'); if (!b) return; const n = +b.dataset.n; SETTINGS.works = SETTINGS.works || [];
+    const i = SETTINGS.works.indexOf(n); if (i >= 0) SETTINGS.works.splice(i, 1); else SETTINGS.works.push(n); showWorks(); apply(); });
+  showWorks();
+  function nudge(d) { if (starts[sel] == null) return; starts[sel] = +(starts[sel] + d).toFixed(3); apply(); markSel(); drawStrip(); }
+  els.forEach((el, i) => el.addEventListener('click', e => { e.stopPropagation(); setSel(i); if (starts[i] != null) { a.currentTime = Math.max(0, starts[i] - 0.15); } camera(paint(a.currentTime)); drawStrip(); }));
+  pp.addEventListener('click', e => { e.stopPropagation(); toggle(); });
+  document.getElementById('bset').addEventListener('click', e => { e.stopPropagation(); setNow(); });
+  document.getElementById('bm').addEventListener('click', e => { e.stopPropagation(); nudge(-0.05); });
+  document.getElementById('bp').addEventListener('click', e => { e.stopPropagation(); nudge(0.05); });
+  document.getElementById('bclr').addEventListener('click', e => { e.stopPropagation(); starts[sel] = orig[sel]; ends[sel] = null; apply(); markSel(); drawStrip(); });
+  document.getElementById('breset').addEventListener('click', e => { e.stopPropagation(); if (confirm('discard all edits?')) { orig.forEach((v, i) => starts[i] = v); ends.fill(null); apply(); markSel(); drawStrip(); } });
+  document.getElementById('bcopy').addEventListener('click', e => { e.stopPropagation(); const j = exportJSON(); out.style.display = 'block'; out.value = j; out.select();
+    if (navigator.clipboard) navigator.clipboard.writeText(j).then(() => stat.textContent = 'copied ' + j.length + ' chars'); });
+  document.getElementById('bdl').addEventListener('click', e => { e.stopPropagation(); e.currentTarget.href = 'data:application/json,' + encodeURIComponent(exportJSON()); });
+  rng.addEventListener('input', e => { e.stopPropagation(); if (a.duration) { a.currentTime = rng.value / 1000 * a.duration; camera(paint(a.currentTime)); drawStrip(); } });
+  rng.addEventListener('click', e => e.stopPropagation());
+  document.getElementById('ed').addEventListener('click', e => e.stopPropagation());
+  strip.addEventListener('pointerdown', e => { e.stopPropagation(); const W = strip.clientWidth, t = a.currentTime, x = e.offsetX; let best = null, bd = 7;
+    WORDS.forEach((w, i) => { if (starts[i] == null) return; const px = (starts[i] - (t - SPAN / 2)) / SPAN * W; if (Math.abs(px - x) < bd) { bd = Math.abs(px - x); best = i; } });
+    if (!a.paused) a.pause();
+    drag = best != null ? { kind: 'tick', i: best, t0: t } : { kind: 'scrub', x0: x, t0: t, moved: false };
+    if (best != null) setSel(best); strip.classList.add('dragging'); strip.setPointerCapture(e.pointerId); });
+  strip.addEventListener('pointermove', e => { if (!drag) return; const W = strip.clientWidth;
+    if (drag.kind === 'tick') { starts[drag.i] = +(drag.t0 - SPAN / 2 + e.offsetX / W * SPAN).toFixed(3); apply(); drawStrip(); }
+    else { if (Math.abs(e.offsetX - drag.x0) > 2) drag.moved = true; seekTo(drag.t0 - (e.offsetX - drag.x0) / W * SPAN); } });
+  strip.addEventListener('pointerup', e => { if (!drag) return; const W = strip.clientWidth;
+    if (drag.kind === 'scrub' && !drag.moved) seekTo(drag.t0 - SPAN / 2 + e.offsetX / W * SPAN);
+    drag = null; strip.classList.remove('dragging'); markSel(); drawStrip(); });
+  strip.addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation();
+    if (e.ctrlKey || e.metaKey) setSpan(SPAN * (e.deltaY > 0 ? 1.15 : 0.87)); else seekTo(a.currentTime + (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) / 100 * SPAN * 0.12); }, { passive: false });
+  document.getElementById('bzi').addEventListener('click', e => { e.stopPropagation(); setSpan(SPAN / 1.5); });
+  document.getElementById('bzo').addEventListener('click', e => { e.stopPropagation(); setSpan(SPAN * 1.5); });
+  document.getElementById('bend').addEventListener('click', e => { e.stopPropagation(); setEndNow(); });
+  document.getElementById('bhelp').addEventListener('click', e => { e.stopPropagation(); document.getElementById('help').classList.toggle('on'); });
+  document.getElementById('help').addEventListener('click', e => e.stopPropagation());
+  setSpan(SPAN);
+  document.addEventListener('keydown', e => {
+    if (e.target === out) return;
+    if (e.code === 'Enter') { e.preventDefault(); if (e.shiftKey) setEndNow(); else setNow(); }
+    else if (e.code === 'Backspace') { e.preventDefault(); starts[sel] = orig[sel]; ends[sel] = null; apply(); setSel(sel - 1); }
+    else if (e.code === 'BracketLeft') { nudge(-0.05); } else if (e.code === 'BracketRight') { nudge(0.05); }
+    else if (e.code === 'ArrowUp') { e.preventDefault(); setSel(sel - 1); } else if (e.code === 'ArrowDown') { e.preventDefault(); setSel(sel + 1); }
+    else if (e.code === 'ArrowLeft') { e.preventDefault(); seekTo(a.currentTime - (e.shiftKey ? 2 : 0.25)); }
+    else if (e.code === 'ArrowRight') { e.preventDefault(); seekTo(a.currentTime + (e.shiftKey ? 2 : 0.25)); }
+  }, true);
+  const _paint2 = paint; paint = t => { const F = _paint2(t);
+    els.forEach((el, i) => { if (i === sel) el.classList.add('sel'); if (starts[i] != null && starts[i] !== orig[i]) el.classList.add('set'); });   // paint rewrites classes; restore the marks
+    drawStrip(); return F; };
+  apply(); clearTimeout(saveTimer); savestat.textContent = SETTINGS.saved_at ? 'saved ' + SETTINGS.saved_at.slice(11) : 'not saved yet'; markSel(); a.addEventListener('loadedmetadata', drawStrip); drawStrip();
+}
+window.addEventListener('resize', () => camera(paint(a.currentTime)));
+</script>
+</body>
+</html>
