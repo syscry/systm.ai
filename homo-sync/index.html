@@ -52,13 +52,9 @@
   body.playing #hint { opacity:.45; }
   body.playing #icplay { display:none; }
   body.playing #icpause { display:block; }
-  #title svg, #endmark svg { display:block; }
+  #title svg { display:block; }
   #title { top:2.4vh; }
-  #endmark { margin-bottom:.6em; }
-  #end { position:absolute; inset:0; z-index:4; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.2em; opacity:0; pointer-events:none; transition:opacity 6s ease; text-align:center; letter-spacing:.2em; font-size:.9em; color:var(--w-lit); font-family:"SYS Regular", ui-monospace, monospace; }
-  #end small { font-size:.75em; opacity:.5; letter-spacing:.25em; }
-  body.ended #end { opacity:1; }
-  body.ended #count, body.ended #hint { opacity:0; }
+  body.ended #count { opacity:0; }
   #seek { position:absolute; left:2.6vw; right:2.6vw; bottom:5.8vh; height:32px; cursor:ew-resize; z-index:5; }
   #track { position:absolute; left:0; right:0; top:50%; height:1px; transform:translateY(-50%); background:#e4e4e4; transition:height .25s ease; }
   #seek:hover #track { height:3px; }
@@ -67,8 +63,8 @@
   #seek:hover #bar::after { opacity:1; }
   #dbg { position:absolute; left:2.6vw; bottom:6vh; font-size:.6em; opacity:.6; white-space:pre; display:none; z-index:3; text-transform:none; letter-spacing:.05em; }
   body.debug #dbg { display:block; }
-  body.edit #gl, body.edit #end, body.edit #rows, body.edit #text { display:none; }
-  body.video #time, body.video #hint, body.video #seek, body.video #rows, body.video #text, body.video #end small:last-child, body.video #down { display:none; }
+  body.edit #gl, body.edit #rows, body.edit #text { display:none; }
+  body.video #time, body.video #hint, body.video #seek, body.video #rows, body.video #text, body.video #down { display:none; }
   body.video #count { bottom:4vh; left:4vw; } body.video #title { left:4vw; top:3vh; }
   body.words #count { display:none; }
   /* systm.ai top bar + footer, copied verbatim into two iframes that load systm.ai's own css/js */
@@ -134,8 +130,9 @@
   .work.on { opacity:1; transform:none; }
   .work img { width:100%; height:auto; display:block; aspect-ratio: 1 / 2; }
   .work span { display:block; margin-top:.9em; font-family:"SYS Regular", ui-monospace, monospace; font-size:10px; letter-spacing:.2em; color:var(--ui); }
-  #down { position:absolute; left:0; right:0; bottom:6.5vh; text-align:center; z-index:3; opacity:0; transition:opacity 3s; }
-  body.ended #down { opacity:.8; }
+  #down { position:absolute; left:0; right:0; bottom:calc(5.8vh + 44px); text-align:center; z-index:3; opacity:.55; transition:opacity 1.4s; }
+  #down:hover { opacity:1; }
+  body.ended #down { opacity:.9; }
   @media (prefers-reduced-motion: reduce) { .w { transition:none; filter:none; } }
 </style>
 </head>
@@ -169,10 +166,9 @@
 <div id="time" class="ui">0:00</div>
 <div id="count" class="ui">01 / 33</div>
 <div id="hint" class="ui"><svg class="ic" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/></svg><svg class="ic" id="icplay" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg><svg class="ic" id="icpause" viewBox="0 0 24 24"><path d="M8 5.5v13M16 5.5v13"/></svg></div>
-<div id="end"><div id="endmark"></div><small>33 works · i wish · 4:40</small><small>click to begin again</small></div>
 <div id="seek"><div id="track"><div id="bar"></div></div></div>
 <div id="dbg"></div>
-<div id="down" class="ui"><a href="#rows" style="color:inherit;text-decoration:none">the works ↓</a></div>
+<div id="down" class="ui"><a href="#rows" style="color:inherit;text-decoration:none">scroll for the 33 works ↓</a></div>
 </div>
 <section id="rows"><h2 id="rowsmark" aria-label="homo:sync"></h2><div class="grid"><figure class="work"><img src="works/t01.webp" alt="" loading="lazy" decoding="async"><span>01</span></figure>
 <figure class="work"><img src="works/t02.webp" alt="" loading="lazy" decoding="async"><span>02</span></figure>
@@ -501,7 +497,6 @@ document.getElementById('rowsmark').innerHTML = dots('homo:sync', 1.5, 0.95);
   const put = () => { try { const m = f.contentDocument && f.contentDocument.getElementById('homomark'); if (m) m.innerHTML = dots('homo:sync', 1.5, 0.95); } catch (e) {} };
   f.addEventListener('load', put); put();
 })();
-document.getElementById('endmark').innerHTML = dots('homo:sync', 2.4, 1.55);
 camera(paint(0)); camY = null; camera(paint(0));
 cancelAnimationFrame(raf); loop();
 // ---- fullscreen view of a work ----
