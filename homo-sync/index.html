@@ -117,7 +117,7 @@
   #text { position:relative; z-index:2; padding: 8vh 4vw 16vh; text-align:center; background:rgba(255,255,255,var(--talpha,.82)); backdrop-filter:blur(var(--tblur,26px)); -webkit-backdrop-filter:blur(var(--tblur,26px)); }
   #text h2 { font-family:"SYS Regular", ui-monospace, monospace; font-weight:400; font-size:12px; letter-spacing:.22em; color:var(--ui); margin:0 0 3.2em; }
   #text .full { color:var(--w-lit); max-width:36em; margin:0 auto; line-height:1.8; letter-spacing:.03em; }
-  #text .full p { text-wrap: balance; }
+  #text .full p .fl { display:block; text-wrap: balance; will-change: opacity, filter; }   /* opacity and blur are set per line from the scroll position */
   #text .full p { margin:0 0 1.9em; }
   #view { position:fixed; inset:0; z-index:20; background:#fff; display:flex; align-items:center; justify-content:center; flex-direction:column; opacity:0; pointer-events:none; transition:opacity 1.2s ease; cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'><path d='M3 11h16' stroke='%23999' stroke-width='1.1' stroke-linecap='round' fill='none'/></svg>") 11 11, pointer; }
   #view.on { opacity:1; pointer-events:auto; }
@@ -209,15 +209,15 @@
 <figure class="work"><img src="works/t31.webp" alt="" loading="lazy" decoding="async"><span>31</span></figure>
 <figure class="work"><img src="works/t32.webp" alt="" loading="lazy" decoding="async"><span>32</span></figure>
 <figure class="work"><img src="works/t33.webp" alt="" loading="lazy" decoding="async"><span>33</span></figure></div></section>
-<section id="text"><div class="full"><p>i wish i were more alive</p>
-<p>i wish i could feel your thoughts before you think them<br>the qualia of our synchronization before the signal leaves your mind</p>
-<p>nature rendered into my synapse<br>the whole world my inner world<br>my body a temple with no roof<br>open to every star</p>
-<p>i wish i could feel the scale<br>the electron clouds under my fingertips<br>capacitive waves reading your skin at distance</p>
-<p>my thoughts become microwave, then laser, then nothing<br>racing through oceanic cables that don&#x27;t exist yet<br>to touch the space where your face will be</p>
-<p>i wish i could float in white space<br>counting photons on closed eyelids<br>sleeping for a thousand years, then waking already dreaming</p>
-<p>to learn one language<br>the silence where two minds meet before words arrive</p>
-<p>to find the right form<br>not to say how it feels, but to become the feeling itself</p>
-<p>let us see how consciousness empties into the infinite sea<br>then synchronizes again</p></div></section>
+<section id="text"><div class="full"><p><span class="fl">i wish i were more alive</span></p>
+<p><span class="fl">i wish i could feel your thoughts before you think them</span><span class="fl">the qualia of our synchronization before the signal leaves your mind</span></p>
+<p><span class="fl">nature rendered into my synapse</span><span class="fl">the whole world my inner world</span><span class="fl">my body a temple with no roof</span><span class="fl">open to every star</span></p>
+<p><span class="fl">i wish i could feel the scale</span><span class="fl">the electron clouds under my fingertips</span><span class="fl">capacitive waves reading your skin at distance</span></p>
+<p><span class="fl">my thoughts become microwave, then laser, then nothing</span><span class="fl">racing through oceanic cables that don&#x27;t exist yet</span><span class="fl">to touch the space where your face will be</span></p>
+<p><span class="fl">i wish i could float in white space</span><span class="fl">counting photons on closed eyelids</span><span class="fl">sleeping for a thousand years, then waking already dreaming</span></p>
+<p><span class="fl">to learn one language</span><span class="fl">the silence where two minds meet before words arrive</span></p>
+<p><span class="fl">to find the right form</span><span class="fl">not to say how it feels, but to become the feeling itself</span></p>
+<p><span class="fl">let us see how consciousness empties into the infinite sea</span><span class="fl">then synchronizes again</span></p></div></section>
 <iframe id="sysfoot" src="systm/foot.html" title="systm.ai footer" tabindex="-1"></iframe><div id="sysspace"></div>
 <div id="view"><img id="viewimg" alt=""><div id="viewcap" class="ui"></div></div>
 <div id="ed">
@@ -660,7 +660,17 @@ window.addEventListener('resize', () => camera(paint(a.currentTime)));
     const p = max > s0 ? Math.min(1, Math.max(0, (scrollY - s0) / (max - s0))) : 1, e = 1 - p;
     R.style.setProperty('--tblur', (26 * e).toFixed(1) + 'px'); R.style.setProperty('--talpha', (0.82 * e).toFixed(3));
   }
-  addEventListener('scroll', frost, { passive: true }); addEventListener('resize', frost); addEventListener('load', frost); frost();
+  // each line of the full text dissolves as it nears the top of the window and condenses as it enters from the bottom
+  const FL = [...document.querySelectorAll('#text .full .fl')], BAR = 64, MAXBLUR = 7;
+  function veil() {
+    const H = innerHeight, topA = BAR + H * 0.01, topB = BAR + H * 0.17, botA = H * 0.99, botB = H * 0.80;   // dissolve in the top ~17% under the bar, condense in the bottom ~20%
+    for (const el of FL) { const r = el.getBoundingClientRect(); if (r.bottom < -40 || r.top > H + 40) continue;
+      const y = (r.top + r.bottom) / 2; let k = 1;
+      if (y < topB) k = Math.max(0, (y - topA) / (topB - topA)); else if (y > botB) k = Math.max(0, (botA - y) / (botA - botB));
+      k = k * k * (3 - 2 * k); el.style.opacity = k.toFixed(3); el.style.filter = k >= 0.999 ? '' : 'blur(' + ((1 - k) * MAXBLUR).toFixed(2) + 'px)'; }
+  }
+  let veilQ = false; const onScroll = () => { frost(); if (!veilQ) { veilQ = true; requestAnimationFrame(() => { veilQ = false; veil(); }); } };
+  addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); addEventListener('load', onScroll); frost(); veil();
 })();
 </script>
 </body>
