@@ -72,7 +72,7 @@
   /* systm.ai top bar + footer, copied verbatim into two iframes that load systm.ai's own css/js */
   #sysbar { position:fixed; top:0; left:0; width:100%; height:64px; border:0; background:transparent; z-index:9; display:block; }
   #sysfoot { position:fixed; left:0; bottom:0; width:100%; height:300px; border:0; background:transparent; z-index:-1; pointer-events:none; display:block; opacity:var(--footop, 0); }
-  #sysspace { height:300px; }
+  #sysspace { height:600px; }
   #piece, #rows { background:var(--bg); }
   #title { top:calc(2.4vh + 44px); }
   #title { display:none; }
@@ -106,11 +106,6 @@
   #et { min-width:7ch; font-variant-numeric:tabular-nums; }
   #edstat { min-width:22ch; }
   #savestat { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; opacity:.6; text-align:right; }
-  #spotlist .spot { position:relative; flex:none; width:34px; height:52px; border:1px solid rgba(255,255,255,.25); border-radius:3px; background:#151515; cursor:pointer; overflow:hidden; opacity:.75; }
-  #spotlist .spot.empty { border-style:dashed; } #spotlist .spot.sel { border-color:#fff; opacity:1; } #spotlist .spot.over { border-color:#ff6; }
-  #spotlist .spot img { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
-  #spotlist .spot small { position:absolute; left:0; right:0; bottom:0; font-size:8px; letter-spacing:0; text-align:center; background:rgba(0,0,0,.55); color:#ddd; line-height:11px; }
-  #workbtns button { cursor:grab; } #ed input[type=number] { width:64px; background:#111; color:#eee; border:1px solid rgba(255,255,255,.28); font:inherit; padding:1px 3px; }
   #strip { display:block; width:100%; height:66px; margin-top:6px; background:#0b0b0b; border-radius:3px; cursor:grab; touch-action:none; }
   #strip.dragging { cursor:grabbing; }
   #help { position:fixed; left:0; right:0; bottom:178px; z-index:6; background:rgba(7,7,7,.96); border-top:1px solid rgba(255,255,255,.14); padding:8px 12px; font:12px/1.6 ui-monospace, Menlo, monospace; color:#bbb; display:none; }
@@ -132,11 +127,12 @@
   #view.swap #viewcap { opacity:0; }
   #viewcap { position:static; margin-top:2.2vh; }
   #viewcap a { color:inherit; text-decoration:none; opacity:.6; transition:opacity .4s; } #viewcap a:hover { opacity:1; }
-  #specs { display:flex; flex-wrap:wrap; justify-content:center; gap:5vh 7vw; max-width:64em; margin:10vh auto 0; font-family:"SYS Regular", ui-monospace, monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ui); opacity:.75; transition:opacity .6s; text-align:left; }
-  #specs:hover { opacity:1; } #specs .col { flex:1 1 260px; max-width:30em; } #specs h3 { font-weight:400; font-size:11px; letter-spacing:.22em; color:var(--w-lit); margin:0 0 1.8em; }
-  #specs .r { display:flex; justify-content:space-between; gap:2em; line-height:2.1; } #specs .r span:last-child { text-align:right; white-space:nowrap; } #specs .r span:first-child { opacity:.7; }
-  #specs a { color:inherit; text-decoration:none; border-bottom:1px solid rgba(0,0,0,.12); }
-  body.video #specs, body.edit #specs { display:none; }
+  #specs { position:fixed; left:0; right:0; bottom:330px; z-index:-1; pointer-events:none; opacity:var(--footop, 0); display:flex; justify-content:center; gap:0 8vw; padding:0 24px; font-family:"SYS Regular", ui-monospace, monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:#9a9a9a; font-variant-numeric:tabular-nums; }
+  #specs .col { width:min(30em, 42vw); } #specs h3 { font-weight:400; font-size:11px; letter-spacing:.22em; color:#bdbdbd; margin:0 0 .9em; padding-bottom:.7em; border-bottom:1px solid #ececec; }
+  #specs .r { display:flex; justify-content:space-between; align-items:baseline; gap:1.5em; line-height:2.15; } #specs .r span:first-child { color:#b6b6b6; white-space:nowrap; } #specs .r span:last-child { color:#6f6f6f; text-align:right; white-space:nowrap; }
+  #specs a { color:inherit; text-decoration:none; border-bottom:1px solid #dcdcdc; pointer-events:auto; }
+  body.video #specs, body.edit #specs, body.spots #specs { display:none; }
+  @media (max-width: 640px) { #specs { top:calc(64px + 2vh); bottom:auto; flex-direction:column; gap:3vh; padding:0 20px; font-size:10px; letter-spacing:.14em; } #specs .col { width:100%; } #specs .r { line-height:2; } #specs h3 { margin-bottom:.6em; } }
   .grid { display:grid; grid-template-columns: repeat(11, 1fr); gap: 2.4vw 1.2vw; max-width:1500px; margin:0 auto; }
   @media (max-width: 899px) { .grid { grid-template-columns: repeat(3, 1fr); gap: 6vw 3vw; } }
   .work { margin:0; opacity:0; transform: translateY(10px); transition: opacity 2.4s ease, transform 2.4s ease; }
@@ -150,6 +146,29 @@
   body.video #start, body.edit #start { display:none; }
   body.outro #down:hover, body.ended #down:hover { opacity:1; }
   @media (prefers-reduced-motion: reduce) { .w { transition:none; filter:none; } }
+  /* ---------- ?spots=1 : place the bodies. The piece plays in the top half, the controls sit below on white. ---------- */
+  body.spots #piece { height:44vh; } body.spots #stage { top:6vh; }
+  body.spots #rows, body.spots #text, body.spots #sysbar, body.spots #sysfoot, body.spots #sysspace, body.spots #down, body.spots #start, body.spots #seek, body.spots #hint, body.spots #time, body.spots #specs, body.spots #chain, body.spots #count { display:none; }
+  #sp { position:fixed; left:0; right:0; bottom:0; height:56vh; background:#fff; border-top:1px solid #ececec; z-index:30; display:none; flex-direction:column; font-family:"SYS Regular", ui-monospace, monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#8c8c8c; -webkit-user-select:none; user-select:none; }
+  body.spots #sp { display:flex; }
+  #sp .bar { display:flex; align-items:center; gap:14px; padding:12px 22px 6px; flex:none; }
+  #sp .bar .t { color:#222; min-width:7ch; font-variant-numeric:tabular-nums; } #sp .bar .hint { flex:1; text-align:center; color:#b4b4b4; letter-spacing:.12em; }
+  #sp button { background:none; border:1px solid #dcdcdc; color:#444; font:inherit; letter-spacing:inherit; text-transform:inherit; padding:5px 11px; border-radius:3px; cursor:pointer; }
+  #sp button:hover { border-color:#8a8a8a; color:#111; } #sp button.primary { border-color:#222; color:#111; } #sp button:disabled { opacity:.35; cursor:default; }
+  #tl { display:block; width:calc(100% - 44px); height:92px; margin:0 22px 6px; cursor:crosshair; flex:none; touch-action:none; }
+  #sp .low { display:flex; flex:1; min-height:0; gap:22px; padding:2px 22px 16px; }
+  #grid { flex:1; display:grid; grid-template-columns:repeat(auto-fill, minmax(58px, 1fr)); gap:7px; align-content:start; overflow:auto; padding-right:4px; }
+  #grid .wk { position:relative; aspect-ratio:2/3; border-radius:3px; overflow:hidden; cursor:pointer; opacity:.9; outline:1px solid transparent; outline-offset:-1px; transition:opacity .2s, outline-color .2s; background:#f3f3f3; }
+  #grid .wk img { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; } #grid .wk:hover { opacity:1; outline-color:#bdbdbd; }
+  #grid .wk.used { opacity:.55; } #grid .wk.used:hover { opacity:.9; } #grid .wk.on { outline:2px solid #111; opacity:1; }
+  #grid .wk small { position:absolute; left:4px; bottom:3px; font-size:9px; letter-spacing:.1em; color:#fff; text-shadow:0 0 5px rgba(0,0,0,.9); }
+  #grid .wk .badge { position:absolute; right:3px; top:3px; background:#111; color:#fff; font-size:9px; letter-spacing:.08em; padding:1px 4px; border-radius:2px; }
+  #insp { width:320px; flex:none; display:flex; flex-direction:column; gap:8px; padding-left:22px; border-left:1px solid #ececec; overflow:auto; min-height:0; }
+  #insp .head { display:flex; gap:14px; align-items:flex-start; } #insp .pic { width:72px; height:108px; border-radius:3px; background:#f3f3f3; overflow:hidden; flex:none; display:flex; align-items:center; justify-content:center; color:#c4c4c4; font-size:18px; }
+  #insp .pic img { width:100%; height:100%; object-fit:cover; display:block; } #insp .meta { color:#222; line-height:1.9; } #insp .meta small { display:block; color:#9a9a9a; font-size:10px; }
+  #insp label { display:grid; grid-template-columns:64px 1fr 58px; align-items:center; gap:10px; color:#8c8c8c; }
+  #insp input[type=range] { width:100%; accent-color:#222; margin:0; } #insp input[type=number] { width:58px; border:1px solid #e2e2e2; border-radius:3px; font:inherit; padding:3px 4px; background:#fff; color:#222; letter-spacing:0; }
+  #insp .acts { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; } #insp.empty label, #insp.empty .acts .sel { display:none; }
 </style>
 </head>
 <body>
@@ -229,8 +248,24 @@
 <p><span class="fl">to learn one language</span><span class="fl">the silence where two minds meet before words arrive</span></p>
 <p><span class="fl">to find the right form</span><span class="fl">not to say how it feels, but to become the feeling itself</span></p>
 <p><span class="fl">let us see how consciousness empties into the infinite sea</span><span class="fl">then synchronizes again</span></p></div>
-<div id="specs"><div class="col"><h3>mint info</h3><div class="r"><span>edition</span><span>33 × 1/1</span></div><div class="r"><span>contract deployment</span><span>25/05/2025</span></div><div class="r"><span>royalties</span><span>0%</span></div><div class="r"><span>token ids</span><span>1 – 33</span></div><div class="r"><span>contract address</span><span><a href="https://etherscan.io/address/0x36527922409be04fc8146ee03a5d42901f5a9f4f" target="_blank" rel="noopener">0x3652…9f4f</a></span></div><div class="r"><span>collection</span><span><a href="https://opensea.io/collection/homo-sync" target="_blank" rel="noopener">opensea</a></span></div></div><div class="col"><h3>tech specs</h3><div class="r"><span>blockchain</span><span>ethereum</span></div><div class="r"><span>standard</span><span>erc-721</span></div><div class="r"><span>metadata</span><span><a href="https://arweave.net/Ga0ADlLf3oo2rgGxfk2Guh8rmTL6zq9CYd5qf0GlxRs/1" target="_blank" rel="noopener">arweave</a></span></div><div class="r"><span>format</span><span>png</span></div><div class="r"><span>resolution</span><span>1000 × 1500 px</span></div><div class="r"><span>size</span><span>+/- 0.4 mb</span></div><div class="r"><span>artist</span><span>sys™</span></div><div class="r"><span>year</span><span>2025</span></div></div></div></section>
+</section>
+<div id="specs"><div class="col"><h3>project info</h3><div class="r"><span>edition</span><span>33 (3 ap)</span></div><div class="r"><span>royalties</span><span>10%</span></div><div class="r"><span>contract deployment</span><span>25/05/2025</span></div><div class="r"><span>token ids</span><span>1 – 33</span></div><div class="r"><span>contract address</span><span><a href="https://etherscan.io/address/0x36527922409be04fc8146ee03a5d42901f5a9f4f" target="_blank" rel="noopener">0x3652…9f4f</a></span></div><div class="r"><span>collection</span><span><a href="https://opensea.io/collection/homo-sync" target="_blank" rel="noopener">opensea</a></span></div></div><div class="col"><h3>tech specs</h3><div class="r"><span>artist</span><span>sys(cry)</span></div><div class="r"><span>year</span><span>2025</span></div><div class="r"><span>blockchain</span><span>ethereum</span></div><div class="r"><span>standard</span><span>erc-721</span></div><div class="r"><span>metadata</span><span><a href="https://arweave.net/Ga0ADlLf3oo2rgGxfk2Guh8rmTL6zq9CYd5qf0GlxRs/1" target="_blank" rel="noopener">arweave</a></span></div><div class="r"><span>format</span><span>png</span></div><div class="r"><span>resolution</span><span>1000 × 1500 px</span></div></div></div>
 <iframe id="sysfoot" src="systm/foot.html" title="systm.ai footer" tabindex="-1"></iframe><div id="sysspace"></div>
+<div id="sp">
+  <div class="bar"><button id="sp_play" class="primary">play</button><span class="t" id="sp_time">0:00.0</span><span class="hint" id="sp_hint">click a work to place it at the playhead · drag a work onto the timeline · drag a spot to move it, its ends to resize</span><span id="sp_save">·</span><button id="sp_auto" title="rebuild every spot from the silences of 7 s and the tail">auto from silences</button></div>
+  <canvas id="tl"></canvas>
+  <div class="low">
+    <div id="grid"></div>
+    <div id="insp" class="empty">
+      <div class="head"><div class="pic" id="sp_pic">+</div><div class="meta" id="sp_meta">no spot selected<small>click a spot on the timeline, or a work to place one</small></div></div>
+      <label>start <input id="sp_t0" type="range" min="0" max="288" step="0.1"><input id="sp_t0n" type="number" step="0.1"></label>
+      <label>end <input id="sp_t1" type="range" min="0" max="288" step="0.1"><input id="sp_t1n" type="number" step="0.1"></label>
+      <label>fade in <input id="sp_fin" type="range" min="0.2" max="12" step="0.1"><input id="sp_finn" type="number" step="0.1" min="0.2"></label>
+      <label>fade out <input id="sp_fout" type="range" min="0.2" max="12" step="0.1"><input id="sp_foutn" type="number" step="0.1" min="0.2"></label>
+      <div class="acts"><button id="sp_prev" class="sel">▷ preview</button><button id="sp_noimg" class="sel">remove image</button><button id="sp_del" class="sel">delete spot</button><button id="sp_new">+ empty spot at playhead</button></div>
+    </div>
+  </div>
+</div>
 <div id="view"><img id="viewimg" alt=""><div id="viewcap" class="ui"></div></div>
 <div id="ed">
   <div class="row">
@@ -251,15 +286,10 @@
     <span id="savestat">·</span>
   </div>
   <div class="row" id="worksrow"><span style="opacity:.6;flex:none">works</span><span id="workbtns" style="display:flex;gap:3px;flex:1;min-width:0"></span><span id="workstat" style="flex:none;opacity:.6"></span></div>
-  <div class="row" id="spotsrow"><span style="opacity:.6;flex:none">spots</span><span id="spotlist" style="display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto"></span><button id="bspotadd" title="a new empty spot at the playhead">+ spot</button><button id="bspotauto" title="replace all spots with the silences of 7 s and the tail">from silences</button></div>
-  <div class="row" id="spotedit" style="display:none"><span id="spotname" style="flex:none;min-width:12ch"></span>
-    <label>start <input id="sp_t0" type="number" step="0.1"></label><label>end <input id="sp_t1" type="number" step="0.1"></label>
-    <label>fade in <input id="sp_fin" type="number" step="0.1" min="0.2"></label><label>fade out <input id="sp_fout" type="number" step="0.1" min="0.2"></label>
-    <button id="bsp_t0">start = now</button><button id="bsp_t1">end = now</button><button id="bsp_go">go</button><button id="bsp_clear">no work</button><button id="bsp_del">delete</button><span id="spotstat" style="opacity:.6"></span></div>
   <canvas id="strip"></canvas>
 </div>
 <div id="help">click a word to select it and jump there · Enter = its start is now, then next word · Shift+Enter = its end is now · [ ] nudge ±50 ms · ↑ ↓ previous / next word · ← → seek ¼ s, shift 2 s · Space play/pause<br>
-strip: drag the background to scrub · drag a tick to move that word · wheel scrubs, ⌘/ctrl+wheel zooms · hold 0 = lit until the next word · every change is saved to disk after a second<br>spots: drag a work number onto a spot (or onto the strip to make one there) · click a spot to edit its start, end and fades · on the strip drag a spot edge to move that edge, its upper half to move the whole spot · from silences rebuilds the spots from the 7 s pauses</div>
+strip: drag the background to scrub · drag a tick to move that word · wheel scrubs, ⌘/ctrl+wheel zooms · hold 0 = lit until the next word · every change is saved to disk after a second · the bodies (yellow) are placed in the spots editor: ?spots=1</div>
 <textarea id="out" readonly></textarea>
 <audio id="a" preload="auto" src="iwish.mp3"></audio>
 <script>
@@ -578,7 +608,7 @@ if (EDIT) {
     const gaps = L.slice(0, -1).map((j, q) => starts[L[q + 1]] - starts[j]).filter(g => g > 0); const d = gaps.length ? gaps.reduce((x, y) => x + y) / gaps.length : 0.7;
     return starts[i] + Math.min(1.8, Math.max(0.4, d)); }
   let saveTimer = null; const savestat = document.getElementById('savestat');
-  function saveNow() { const j = exportJSON();
+  function saveNow() { if (Q.get('nosave')) { savestat.textContent = 'not saving (?nosave=1)'; return; } const j = exportJSON();
     fetch('/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: j }).then(r => r.json()).then(r => {
       savestat.textContent = r.ok ? 'saved ' + r.saved_at.slice(11) : 'save failed: ' + (r.error || r.build);
     }).catch(() => { savestat.textContent = 'browser only · run serve.py to save'; }); }
@@ -588,7 +618,7 @@ if (EDIT) {
     clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 1200); savestat.textContent = 'saving';
     for (const k in lineStart) delete lineStart[k]; for (const k in lineEnd) delete lineEnd[k];
     for (const w of WORDS) { if (w.start == null) continue; const L = lineOf[w.i].dataset.l; lineStart[L] = Math.min(lineStart[L] ?? 1e9, w.start); lineEnd[L] = Math.max(lineEnd[L] ?? -1, w.end); }
-    LINES.forEach(L => { L.s = lineStart[L.el.dataset.l]; L.e = lineEnd[L.el.dataset.l]; }); buildPauses(); if (typeof showSpots === 'function') showSpots(); }
+    LINES.forEach(L => { L.s = lineStart[L.el.dataset.l]; L.e = lineEnd[L.el.dataset.l]; }); buildPauses(); }
   const pp = document.getElementById('pp'), et = document.getElementById('et'), rng = document.getElementById('rng'), strip = document.getElementById('strip'),
         stat = document.getElementById('edstat'), out = document.getElementById('out'), ctx = strip.getContext('2d');
   const fmt2 = s => (s / 60 | 0) + ':' + (s % 60).toFixed(2).padStart(5, '0');
@@ -634,67 +664,12 @@ if (EDIT) {
   workbtns.addEventListener('click', e => { e.stopPropagation(); const b = e.target.closest('button'); if (!b) return; const n = +b.dataset.n; SETTINGS.works = SETTINGS.works || [];
     const i = SETTINGS.works.indexOf(n); if (i >= 0) SETTINGS.works.splice(i, 1); else SETTINGS.works.push(n); showWorks(); apply(); });
   showWorks();
-  // ---------- spots: where a body stands, which work, how it fades. Saved with the timeline. ----------
-  const spotlist = document.getElementById('spotlist'), spotedit = document.getElementById('spotedit'), spotname = document.getElementById('spotname'), spotstat = document.getElementById('spotstat');
-  const spI = { t0: document.getElementById('sp_t0'), t1: document.getElementById('sp_t1'), fin: document.getElementById('sp_fin'), fout: document.getElementById('sp_fout') };
-  let spSel = -1;
-  if (!Array.isArray(SETTINGS.spots) || !SETTINGS.spots.length) SETTINGS.spots = PAUSES.map(P => ({ t0: +P.t0.toFixed(2), t1: +P.t1.toFixed(2), fin: +P.fin.toFixed(2), fout: +P.fout.toFixed(2), work: P.work + 1 }));   // start from what plays now
-  const fmt1 = t => (t / 60 | 0) + ':' + (t % 60).toFixed(1).padStart(4, '0');
-  function spotSave() { const cur = SETTINGS.spots[spSel]; SETTINGS.spots.sort((x, y) => x.t0 - y.t0); spSel = cur ? SETTINGS.spots.indexOf(cur) : -1; apply(); showSpots(); drawStrip(); }   // the selection follows its spot through the sort
-  function showSpots() {
-    const sp = SETTINGS.spots || [];
-    spotlist.innerHTML = sp.map((x, i) => '<span class="spot ' + (x.work ? '' : 'empty') + (i === spSel ? ' sel' : '') + '" data-i="' + i + '" title="' + fmt1(x.t0) + ' to ' + fmt1(x.t1) + '">' + (x.work ? '<img src="works/t' + String(x.work).padStart(2, '0') + '.webp">' : '') + '<small>' + fmt1(x.t0) + '</small></span>').join('');
-    const used = sp.filter(x => x.work).length; spotstat.textContent = used + ' of ' + sp.length + ' spots filled';
-    workstat.textContent = used + ' bodies in ' + sp.length + ' spots · drag a work number onto a spot';
-    if (spSel >= 0 && sp[spSel]) { const x = sp[spSel]; spotedit.style.display = ''; spotname.textContent = 'spot ' + (spSel + 1) + (x.work ? ' · work ' + String(x.work).padStart(2, '0') : ' · empty');
-      spI.t0.value = x.t0.toFixed(1); spI.t1.value = x.t1.toFixed(1); spI.fin.value = x.fin.toFixed(1); spI.fout.value = x.fout.toFixed(1); } else spotedit.style.display = 'none';
+  function showSpots() {}
+  function drawSpots(x, W, H) {                                        // where the bodies stand, for orientation only; edit them in ?spots=1
+    (SETTINGS.spots || []).forEach(s => { const x0 = x(s.t0), x1 = x(s.t1); if (x1 < 0 || x0 > W) return;
+      ctx.fillStyle = 'rgba(255,220,120,.14)'; ctx.fillRect(x0, 0, x1 - x0, H); ctx.strokeStyle = 'rgba(255,220,120,.45)'; ctx.lineWidth = devicePixelRatio; ctx.strokeRect(x0, 1, x1 - x0, H - 2); });
   }
-  function drawSpots(x, W, H) {
-    const sp = SETTINGS.spots || []; ctx.font = (10 * devicePixelRatio) + 'px ui-monospace, Menlo, monospace';
-    sp.forEach((s, i) => { const x0 = x(s.t0), x1 = x(s.t1); if (x1 < 0 || x0 > W) return;
-      const g = ctx.createLinearGradient(x0, 0, x1, 0), span = Math.max(0.01, s.t1 - s.t0), al = s.work ? 0.22 : 0.08;
-      g.addColorStop(0, 'rgba(255,220,120,0)'); g.addColorStop(Math.min(1, s.fin / span), 'rgba(255,220,120,' + al + ')'); g.addColorStop(Math.max(0, 1 - s.fout / span), 'rgba(255,220,120,' + al + ')'); g.addColorStop(1, 'rgba(255,220,120,0)');
-      ctx.fillStyle = g; ctx.fillRect(x0, 0, x1 - x0, H);
-      ctx.strokeStyle = i === spSel ? '#ffd870' : 'rgba(255,220,120,.5)'; ctx.lineWidth = (i === spSel ? 2 : 1) * devicePixelRatio; ctx.setLineDash(s.work ? [] : [4 * devicePixelRatio, 3 * devicePixelRatio]);
-      ctx.strokeRect(x0, 1, x1 - x0, H - 2); ctx.setLineDash([]);
-      ctx.fillStyle = i === spSel ? '#ffd870' : 'rgba(255,220,120,.8)'; ctx.fillText((s.work ? 'work ' + String(s.work).padStart(2, '0') : 'empty spot') + ' · ' + (s.t1 - s.t0).toFixed(1) + ' s', Math.max(x0, 0) + 4 * devicePixelRatio, H - 5 * devicePixelRatio); });
-  }
-  function spotHit(px, py, W) {                                        // what is under the pointer on the strip: an edge, or a body in the upper half
-    const t = a.currentTime, x = s => (s - (t - SPAN / 2)) / SPAN * W; const sp = SETTINGS.spots || [];
-    for (let i = 0; i < sp.length; i++) { const x0 = x(sp[i].t0), x1 = x(sp[i].t1);
-      if (Math.abs(px - x0) < 7) return { kind: 'spot', i, edge: 't0', o: sp[i].t0 };
-      if (Math.abs(px - x1) < 7) return { kind: 'spot', i, edge: 't1', o: sp[i].t1 }; }
-    if (py < strip.clientHeight * 0.45) for (let i = 0; i < sp.length; i++) { if (px > x(sp[i].t0) && px < x(sp[i].t1)) return { kind: 'spot', i, edge: 'all', o: sp[i].t0, o1: sp[i].t1 }; }
-    return null;
-  }
-  function spotDrag(d, dt) { const s = SETTINGS.spots[d.i]; if (!s) return; spSel = d.i;
-    if (d.edge === 't0') s.t0 = Math.max(0, Math.min(s.t1 - 1, d.o + dt)); else if (d.edge === 't1') s.t1 = Math.max(s.t0 + 1, d.o + dt);
-    else { const len = d.o1 - d.o; s.t0 = Math.max(0, d.o + dt); s.t1 = s.t0 + len; }
-    buildPauses(); showSpots(); drawStrip(); }
-  function spotSetWork(i, n) { const s = SETTINGS.spots[i]; if (!s) return; s.work = n || null; spSel = i; spotSave(); }
-  spotlist.addEventListener('click', e => { e.stopPropagation(); const el = e.target.closest('.spot'); if (!el) return; spSel = +el.dataset.i; showSpots(); drawStrip(); });
-  spotlist.addEventListener('dblclick', e => { e.stopPropagation(); const el = e.target.closest('.spot'); if (!el) return; const s = SETTINGS.spots[+el.dataset.i]; if (s) seekTo(s.t0 + 0.5); });
-  function armDrag() { workbtns.querySelectorAll('button').forEach(b => { b.draggable = true; b.ondragstart = e => { e.dataTransfer.setData('text/plain', b.dataset.n); e.dataTransfer.effectAllowed = 'copy'; }; }); }
-  armDrag(); workbtns.addEventListener('click', armDrag);
-  spotlist.addEventListener('dragover', e => { e.preventDefault(); const el = e.target.closest('.spot'); spotlist.querySelectorAll('.over').forEach(x => x.classList.remove('over')); if (el) el.classList.add('over'); });
-  spotlist.addEventListener('dragleave', e => { spotlist.querySelectorAll('.over').forEach(x => x.classList.remove('over')); });
-  spotlist.addEventListener('drop', e => { e.preventDefault(); e.stopPropagation(); const el = e.target.closest('.spot'); const n = parseInt(e.dataTransfer.getData('text/plain'), 10); if (el && n) spotSetWork(+el.dataset.i, n); });
-  strip.addEventListener('dragover', e => e.preventDefault());
-  strip.addEventListener('drop', e => { e.preventDefault(); e.stopPropagation(); const n = parseInt(e.dataTransfer.getData('text/plain'), 10); if (!n) return;
-    const W = strip.clientWidth, t = a.currentTime - SPAN / 2 + e.offsetX / W * SPAN; SETTINGS.spots.push({ t0: Math.max(0, +t.toFixed(2)), t1: +(t + 8).toFixed(2), fin: 3, fout: 3, work: n }); spSel = SETTINGS.spots.length - 1; spotSave(); });
-  document.getElementById('bspotadd').addEventListener('click', e => { e.stopPropagation(); const t = a.currentTime; SETTINGS.spots.push({ t0: +t.toFixed(2), t1: +(t + 8).toFixed(2), fin: 3, fout: 3, work: null }); spSel = SETTINGS.spots.length - 1; spotSave(); });
-  document.getElementById('bspotauto').addEventListener('click', e => { e.stopPropagation(); if (!confirm('replace all spots with the silences of ' + MIN_GAP + ' s and the tail?')) return;
-    SETTINGS.spots = []; buildPauses(); SETTINGS.spots = PAUSES.map(P => ({ t0: +P.t0.toFixed(2), t1: +P.t1.toFixed(2), fin: +P.fin.toFixed(2), fout: +P.fout.toFixed(2), work: P.work + 1 })); spSel = -1; spotSave(); });
-  Object.entries(spI).forEach(([k, inp]) => { inp.addEventListener('click', e => e.stopPropagation()); inp.addEventListener('keydown', e => e.stopPropagation());
-    inp.addEventListener('change', e => { e.stopPropagation(); const s = SETTINGS.spots[spSel]; if (!s) return; const v = parseFloat(inp.value); if (isNaN(v)) return;
-      if (k === 't0') s.t0 = Math.max(0, Math.min(s.t1 - 1, v)); else if (k === 't1') s.t1 = Math.max(s.t0 + 1, v); else s[k] = Math.max(0.2, v); spotSave(); }); });
-  document.getElementById('bsp_t0').addEventListener('click', e => { e.stopPropagation(); const s = SETTINGS.spots[spSel]; if (s) { s.t0 = Math.min(s.t1 - 1, +a.currentTime.toFixed(2)); spotSave(); } });
-  document.getElementById('bsp_t1').addEventListener('click', e => { e.stopPropagation(); const s = SETTINGS.spots[spSel]; if (s) { s.t1 = Math.max(s.t0 + 1, +a.currentTime.toFixed(2)); spotSave(); } });
-  document.getElementById('bsp_go').addEventListener('click', e => { e.stopPropagation(); const s = SETTINGS.spots[spSel]; if (s) seekTo(Math.max(0, s.t0 - 1)); });
-  document.getElementById('bsp_clear').addEventListener('click', e => { e.stopPropagation(); spotSetWork(spSel, null); });
-  document.getElementById('bsp_del').addEventListener('click', e => { e.stopPropagation(); if (spSel < 0) return; SETTINGS.spots.splice(spSel, 1); spSel = -1; spotSave(); });
-  spotedit.addEventListener('click', e => e.stopPropagation());
-  showSpots();
+  function spotHit() { return null; } function spotDrag() {} function spotSave() {}
   function nudge(d) { if (starts[sel] == null) return; starts[sel] = +(starts[sel] + d).toFixed(3); apply(); markSel(); drawStrip(); }
   els.forEach((el, i) => el.addEventListener('click', e => { e.stopPropagation(); setSel(i); if (starts[i] != null) { a.currentTime = Math.max(0, starts[i] - 0.15); } camera(paint(a.currentTime)); drawStrip(); }));
   pp.addEventListener('click', e => { e.stopPropagation(); toggle(); });
@@ -765,8 +740,111 @@ window.addEventListener('resize', () => camera(paint(a.currentTime)));
       if (y < topB) k = Math.max(0, (y - topA) / (topB - topA)); else if (y > botB) k = Math.max(0, (botA - y) / (botA - botB));
       k = k * k * (3 - 2 * k); el.style.opacity = k.toFixed(3); el.style.filter = k >= 0.999 ? '' : 'blur(' + ((1 - k) * MAXBLUR).toFixed(2) + 'px)'; }
   }
+  const sysspace = document.getElementById('sysspace'), specsEl = document.getElementById('specs');
+  function room() { if (!sysspace || !specsEl) return; const phone = innerWidth <= 640; sysspace.style.height = (phone ? Math.max(300, specsEl.offsetHeight + 64 + innerHeight * 0.02 + 40) : specsEl.offsetHeight + 330 + 40) + 'px'; }
+  room(); addEventListener('resize', room);
   let veilQ = false; const onScroll = () => { frost(); if (!veilQ) { veilQ = true; requestAnimationFrame(() => { veilQ = false; veil(); }); } };
   addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); addEventListener('load', onScroll); frost(); veil();
+})();
+</script>
+<script>
+(() => {   // ---------- the spots editor (?spots=1) ----------
+  if (!Q.get('spots') || EDIT) return;
+  document.body.classList.add('spots');
+  const D = () => a.duration || 288;
+  const $ = id => document.getElementById(id);
+  const tl = $('tl'), tctx = tl.getContext('2d'), grid = $('grid'), insp = $('insp');
+  const I = { t0: $('sp_t0'), t1: $('sp_t1'), fin: $('sp_fin'), fout: $('sp_fout') }, N = { t0: $('sp_t0n'), t1: $('sp_t1n'), fin: $('sp_finn'), fout: $('sp_foutn') };
+  if (!Array.isArray(SETTINGS.spots) || !SETTINGS.spots.length) SETTINGS.spots = PAUSES.map(P => ({ t0: +P.t0.toFixed(2), t1: +P.t1.toFixed(2), fin: +P.fin.toFixed(2), fout: +P.fout.toFixed(2), work: P.work + 1 }));
+  const SP = SETTINGS.spots; let sel = -1, drag = null, saveT = null;
+  const thumbs = {}; for (let n = 1; n <= N_WORKS; n++) { const im = new Image(); im.src = 'works/t' + String(n).padStart(2, '0') + '.webp'; im.onload = draw; thumbs[n] = im; }
+  const fmt = t => (t / 60 | 0) + ':' + (t % 60).toFixed(1).padStart(4, '0');
+  // ---- persistence: the same file the word editor writes, words untouched ----
+  function payload() { return JSON.stringify({ method: 'edited-by-author',
+    settings: { hold: SETTINGS.hold, fade: SETTINGS.fade, lead: SETTINGS.lead, works: SETTINGS.works, manual_ends: SETTINGS.manual_ends || [], spots: SP.map(x => ({ t0: +x.t0.toFixed(2), t1: +x.t1.toFixed(2), fin: +x.fin.toFixed(2), fout: +x.fout.toFixed(2), work: x.work || null })) },
+    words: WORDS.map((w, i) => ({ word: els[i].textContent.replace(/[,.]/g, '').toLowerCase(), start: w.start, end: w.end, line: w.line })) }); }
+  function save() { if (Q.get('nosave')) { $('sp_save').textContent = 'not saving (?nosave=1)'; return; } $('sp_save').textContent = 'saving'; clearTimeout(saveT); saveT = setTimeout(() => {
+    fetch('/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload() }).then(r => r.json()).then(r => { $('sp_save').textContent = r.ok ? 'saved ' + r.saved_at.slice(11, 16) : 'save failed'; }).catch(() => { $('sp_save').textContent = 'run serve.py to save'; }); }, 900); }
+  function changed(persist = true) { SP.sort((x, y) => x.t0 - y.t0); buildPauses(); showGrid(); showInsp(); draw(); if (persist) save(); }
+  function select(i) { sel = i; showGrid(); showInsp(); draw(); }
+  // ---- the works ----
+  function showGrid() { const used = {}; SP.forEach((x, i) => { if (x.work) used[x.work] = i + 1; });
+    grid.innerHTML = Array.from({ length: N_WORKS }, (_, k) => { const n = k + 1, on = sel >= 0 && SP[sel] && SP[sel].work === n;
+      return '<div class="wk' + (used[n] ? ' used' : '') + (on ? ' on' : '') + '" data-n="' + n + '" draggable="true" title="' + (used[n] ? 'in spot ' + used[n] : 'not placed') + '"><img src="works/t' + String(n).padStart(2, '0') + '.webp"><small>' + String(n).padStart(2, '0') + '</small>' + (used[n] ? '<span class="badge">' + used[n] + '</span>' : '') + '</div>'; }).join(''); }
+  grid.addEventListener('click', e => { e.stopPropagation(); const el = e.target.closest('.wk'); if (!el) return; const n = +el.dataset.n;
+    if (sel >= 0 && SP[sel]) { SP[sel].work = n; changed(); }
+    else { const t = +a.currentTime.toFixed(2); SP.push({ t0: t, t1: Math.min(D(), t + 8), fin: 3, fout: 3, work: n }); sel = SP.length - 1; const cur = SP[sel]; changed(); sel = SP.indexOf(cur); showGrid(); showInsp(); draw(); } });
+  grid.addEventListener('dragstart', e => { const el = e.target.closest('.wk'); if (!el) return; e.dataTransfer.setData('text/plain', el.dataset.n); e.dataTransfer.effectAllowed = 'copy'; });
+  // ---- the inspector ----
+  function showInsp() { const x = SP[sel];
+    insp.classList.toggle('empty', !x);
+    if (!x) { $('sp_pic').innerHTML = '+'; $('sp_meta').innerHTML = 'no spot selected<small>click a spot on the timeline, or a work to place one</small>'; return; }
+    $('sp_pic').innerHTML = x.work ? '<img src="works/t' + String(x.work).padStart(2, '0') + '.webp">' : '+';
+    $('sp_meta').innerHTML = 'spot ' + (sel + 1) + (x.work ? ' · work ' + String(x.work).padStart(2, '0') : ' · no image') + '<small>' + fmt(x.t0) + ' → ' + fmt(x.t1) + ' · ' + (x.t1 - x.t0).toFixed(1) + ' s on screen</small>';
+    for (const k of ['t0', 't1', 'fin', 'fout']) { I[k].max = k === 't0' || k === 't1' ? D().toFixed(1) : 12; I[k].value = x[k]; N[k].value = x[k].toFixed(1); } }
+  function setField(k, v) { const x = SP[sel]; if (!x || isNaN(v)) return;
+    if (k === 't0') x.t0 = Math.max(0, Math.min(x.t1 - 1, v)); else if (k === 't1') x.t1 = Math.max(x.t0 + 1, Math.min(D(), v)); else x[k] = Math.max(0.2, Math.min(12, v));
+    const cur = x; changed(); sel = SP.indexOf(cur); showGrid(); showInsp(); draw(); }
+  for (const k of ['t0', 't1', 'fin', 'fout']) { I[k].addEventListener('input', e => { e.stopPropagation(); setField(k, parseFloat(I[k].value)); }); N[k].addEventListener('change', e => { e.stopPropagation(); setField(k, parseFloat(N[k].value)); });
+    [I[k], N[k]].forEach(el => { el.addEventListener('click', e => e.stopPropagation()); el.addEventListener('keydown', e => e.stopPropagation()); }); }
+  $('sp_prev').addEventListener('click', e => { e.stopPropagation(); const x = SP[sel]; if (!x) return; a.currentTime = Math.max(0, x.t0 - 1); if (a.paused) a.play(); });
+  $('sp_noimg').addEventListener('click', e => { e.stopPropagation(); if (SP[sel]) { SP[sel].work = null; changed(); } });
+  $('sp_del').addEventListener('click', e => { e.stopPropagation(); if (sel < 0) return; SP.splice(sel, 1); sel = -1; changed(); });
+  $('sp_new').addEventListener('click', e => { e.stopPropagation(); const t = +a.currentTime.toFixed(2); SP.push({ t0: t, t1: Math.min(D(), t + 8), fin: 3, fout: 3, work: null }); const cur = SP[SP.length - 1]; changed(); sel = SP.indexOf(cur); showGrid(); showInsp(); draw(); });
+  $('sp_auto').addEventListener('click', e => { e.stopPropagation(); if (!confirm('replace every spot with the silences of ' + MIN_GAP + ' s and the tail?')) return;
+    SP.length = 0; buildPauses(); PAUSES.forEach(P => SP.push({ t0: +P.t0.toFixed(2), t1: +P.t1.toFixed(2), fin: +P.fin.toFixed(2), fout: +P.fout.toFixed(2), work: P.work + 1 })); sel = -1; changed(); });
+  $('sp_play').addEventListener('click', e => { e.stopPropagation(); if (a.paused) a.play(); else a.pause(); });
+  $('sp').addEventListener('click', e => e.stopPropagation());
+  // ---- the timeline ----
+  const px = () => devicePixelRatio || 1;
+  function X(t, W) { return t / D() * W; } function T(x, W) { return x / W * D(); }
+  function draw() {
+    const r = px(), W = tl.width = tl.clientWidth * r, H = tl.height = tl.clientHeight * r; tctx.clearRect(0, 0, W, H);
+    const top = 14 * r, bot = H - 16 * r, h = bot - top;
+    if (typeof ENVELOPE !== 'undefined' && ENVELOPE) { tctx.fillStyle = '#efefef'; const per = Math.max(1, Math.floor(ENVELOPE.length / (W / (2 * r))));
+      for (let f = 0; f < ENVELOPE.length; f += per) { let v = 0; for (let q = f; q < Math.min(ENVELOPE.length, f + per); q++) v = Math.max(v, ENVELOPE[q]); const eh = v / 255 * h * 0.9; tctx.fillRect(X(f * 0.02, W), bot - eh, Math.max(1, X(per * 0.02, W)), eh); } }
+    tctx.fillStyle = '#d6d6d6'; LINES.forEach(L => { if (L.s == null || L.e == null) return; tctx.fillRect(X(L.s, W), bot + 5 * r, Math.max(1, X(L.e - L.s, W)), 4 * r); });   // the spoken lines
+    SP.forEach((s, i) => { const x0 = X(s.t0, W), x1 = X(s.t1, W), w = x1 - x0, on = i === sel;
+      tctx.save(); tctx.beginPath(); tctx.roundRect(x0, top, w, h, 4 * r); tctx.clip();
+      tctx.fillStyle = '#fff'; tctx.fillRect(x0, top, w, h);
+      const im = s.work && thumbs[s.work]; if (im && im.complete && im.naturalWidth) { const sc = Math.max(w / im.naturalWidth, h / im.naturalHeight), iw = im.naturalWidth * sc, ih = im.naturalHeight * sc; tctx.globalAlpha = on ? 1 : .85; tctx.drawImage(im, x0 + (w - iw) / 2, top + (h - ih) / 2, iw, ih); tctx.globalAlpha = 1; }
+      const g = tctx.createLinearGradient(x0, 0, x1, 0), span = Math.max(0.01, s.t1 - s.t0);          // the fades as white veils at both ends
+      g.addColorStop(0, 'rgba(255,255,255,.95)'); g.addColorStop(Math.min(1, s.fin / span), 'rgba(255,255,255,0)'); g.addColorStop(Math.max(0, 1 - s.fout / span), 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(255,255,255,.95)');
+      tctx.fillStyle = g; tctx.fillRect(x0, top, w, h); tctx.restore();
+      tctx.beginPath(); tctx.roundRect(x0 + 0.5, top + 0.5, w - 1, h - 1, 4 * r); tctx.setLineDash(s.work ? [] : [4 * r, 3 * r]); tctx.strokeStyle = on ? '#111' : '#bdbdbd'; tctx.lineWidth = (on ? 2 : 1) * r; tctx.stroke(); tctx.setLineDash([]);
+      tctx.fillStyle = on ? '#111' : '#8c8c8c'; tctx.font = (9 * r) + 'px ui-monospace, Menlo, monospace'; tctx.fillText(s.work ? String(s.work).padStart(2, '0') : '+', x0 + 5 * r, top - 4 * r); });
+    const xp = X(a.currentTime, W); tctx.fillStyle = '#111'; tctx.fillRect(xp - 0.5 * r, 0, r, H);
+    $('sp_time').textContent = fmt(a.currentTime); $('sp_play').textContent = a.paused ? 'play' : 'pause';
+  }
+  function hit(x, y) { const W = tl.clientWidth; for (let i = SP.length - 1; i >= 0; i--) { const x0 = X(SP[i].t0, W), x1 = X(SP[i].t1, W);
+      if (Math.abs(x - x0) <= 6) return { i, edge: 't0' }; if (Math.abs(x - x1) <= 6) return { i, edge: 't1' }; if (x > x0 && x < x1 && y > 8 && y < tl.clientHeight - 12) return { i, edge: 'all' }; } return null; }
+  tl.addEventListener('pointermove', e => { if (drag) return; const hh = hit(e.offsetX, e.offsetY); tl.style.cursor = hh ? (hh.edge === 'all' ? 'grab' : 'ew-resize') : 'crosshair'; });
+  tl.addEventListener('pointerdown', e => { e.stopPropagation(); const hh = hit(e.offsetX, e.offsetY); const W = tl.clientWidth;
+    if (hh) { const s = SP[hh.i]; sel = hh.i; drag = Object.assign({ x0: e.offsetX, o0: s.t0, o1: s.t1, moved: false, obj: s }, hh); showGrid(); showInsp(); }
+    else { drag = { edge: 'scrub' }; a.currentTime = Math.max(0, Math.min(D(), T(e.offsetX, W))); }
+    tl.setPointerCapture(e.pointerId); draw(); });
+  tl.addEventListener('pointermove', e => { if (!drag) return; const W = tl.clientWidth;
+    if (drag.edge === 'scrub') { a.currentTime = Math.max(0, Math.min(D(), T(e.offsetX, W))); draw(); return; }
+    const dt = T(e.offsetX - drag.x0, W), s = drag.obj; if (Math.abs(e.offsetX - drag.x0) > 2) drag.moved = true;
+    if (drag.edge === 't0') s.t0 = Math.max(0, Math.min(s.t1 - 1, drag.o0 + dt)); else if (drag.edge === 't1') s.t1 = Math.max(s.t0 + 1, Math.min(D(), drag.o1 + dt));
+    else { const len = drag.o1 - drag.o0; s.t0 = Math.max(0, Math.min(D() - len, drag.o0 + dt)); s.t1 = s.t0 + len; }
+    buildPauses(); showInsp(); draw(); });
+  tl.addEventListener('pointerup', e => { if (!drag) return; const d = drag; drag = null; if (d.edge !== 'scrub') { const cur = d.obj; changed(); sel = SP.indexOf(cur); showGrid(); showInsp(); draw(); } });
+  tl.addEventListener('dragover', e => e.preventDefault());
+  tl.addEventListener('drop', e => { e.preventDefault(); e.stopPropagation(); const n = parseInt(e.dataTransfer.getData('text/plain'), 10); if (!n) return; const hh = hit(e.offsetX, e.offsetY);
+    if (hh) { SP[hh.i].work = n; sel = hh.i; changed(); }
+    else { const t = Math.max(0, +T(e.offsetX, tl.clientWidth).toFixed(2)); SP.push({ t0: t, t1: Math.min(D(), t + 8), fin: 3, fout: 3, work: n }); const cur = SP[SP.length - 1]; changed(); sel = SP.indexOf(cur); showGrid(); showInsp(); draw(); } });
+  document.addEventListener('keydown', e => { if (e.target.tagName === 'INPUT') return;
+    if (e.code === 'Space') { e.preventDefault(); if (a.paused) a.play(); else a.pause(); }
+    else if (e.code === 'ArrowLeft') { e.preventDefault(); a.currentTime = Math.max(0, a.currentTime - (e.shiftKey ? 5 : 1)); }
+    else if (e.code === 'ArrowRight') { e.preventDefault(); a.currentTime = Math.min(D(), a.currentTime + (e.shiftKey ? 5 : 1)); }
+    else if ((e.code === 'Backspace' || e.code === 'Delete') && sel >= 0) { e.preventDefault(); SP.splice(sel, 1); sel = -1; changed(); }
+    else if (e.code === 'Escape') { select(-1); } }, true);
+  a.addEventListener('timeupdate', draw); a.addEventListener('play', draw); a.addEventListener('pause', draw); a.addEventListener('loadedmetadata', () => { showInsp(); draw(); });
+  window.addEventListener('resize', draw);
+  document.body.classList.remove('idle');
+  changed(false); $('sp_save').textContent = SETTINGS.saved_at ? 'saved ' + SETTINGS.saved_at.slice(11, 16) : 'not saved yet';
+  setInterval(() => { if (!a.paused) draw(); }, 100);
 })();
 </script>
 </body>
