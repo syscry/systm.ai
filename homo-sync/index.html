@@ -754,7 +754,7 @@ window.addEventListener('resize', () => camera(paint(a.currentTime)));
     const max = R.scrollHeight - innerHeight, s0 = T.getBoundingClientRect().top + scrollY - innerHeight;
     const p = max > s0 ? Math.min(1, Math.max(0, (scrollY - s0) / (max - s0))) : 1, e = 1 - p;
     R.style.setProperty('--tblur', (26 * e).toFixed(1) + 'px'); R.style.setProperty('--talpha', (0.82 * e).toFixed(3));
-    const q = Math.max(0, Math.min(1, (p - 0.72) / 0.28)); R.style.setProperty('--footop', (q * q * (3 - 2 * q)).toFixed(3));   // the device and the bottom line appear only over the last stretch
+    const q = Math.max(0, Math.min(1, (p - 0.84) / 0.16)); R.style.setProperty('--footop', (q * q * (3 - 2 * q)).toFixed(3));   // the device and the bottom line appear only over the last stretch
   }
   // each line of the full text dissolves as it nears the top of the window and condenses as it enters from the bottom
   const FL = [...document.querySelectorAll('#text .full .fl')], BAR = 64, MAXBLUR = 7;
