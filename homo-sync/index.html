@@ -132,9 +132,11 @@
   #view.swap #viewcap { opacity:0; }
   #viewcap { position:static; margin-top:2.2vh; }
   #viewcap a { color:inherit; text-decoration:none; opacity:.6; transition:opacity .4s; } #viewcap a:hover { opacity:1; }
-  #chain { font-family:"SYS Regular", ui-monospace, monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ui); text-align:center; margin:9vh auto 0; opacity:.6; transition:opacity .6s; }
-  #chain:hover { opacity:1; } #chain a { color:inherit; text-decoration:none; border-bottom:1px solid rgba(0,0,0,.12); }
-  body.video #chain, body.edit #chain { display:none; }
+  #specs { display:flex; flex-wrap:wrap; justify-content:center; gap:5vh 7vw; max-width:64em; margin:10vh auto 0; font-family:"SYS Regular", ui-monospace, monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ui); opacity:.75; transition:opacity .6s; text-align:left; }
+  #specs:hover { opacity:1; } #specs .col { flex:1 1 260px; max-width:30em; } #specs h3 { font-weight:400; font-size:11px; letter-spacing:.22em; color:var(--w-lit); margin:0 0 1.8em; }
+  #specs .r { display:flex; justify-content:space-between; gap:2em; line-height:2.1; } #specs .r span:last-child { text-align:right; white-space:nowrap; } #specs .r span:first-child { opacity:.7; }
+  #specs a { color:inherit; text-decoration:none; border-bottom:1px solid rgba(0,0,0,.12); }
+  body.video #specs, body.edit #specs { display:none; }
   .grid { display:grid; grid-template-columns: repeat(11, 1fr); gap: 2.4vw 1.2vw; max-width:1500px; margin:0 auto; }
   @media (max-width: 899px) { .grid { grid-template-columns: repeat(3, 1fr); gap: 6vw 3vw; } }
   .work { margin:0; opacity:0; transform: translateY(10px); transition: opacity 2.4s ease, transform 2.4s ease; }
@@ -227,7 +229,7 @@
 <p><span class="fl">to learn one language</span><span class="fl">the silence where two minds meet before words arrive</span></p>
 <p><span class="fl">to find the right form</span><span class="fl">not to say how it feels, but to become the feeling itself</span></p>
 <p><span class="fl">let us see how consciousness empties into the infinite sea</span><span class="fl">then synchronizes again</span></p></div>
-<div id="chain">33 works · ERC-721 on Ethereum · <a href="https://etherscan.io/address/0x36527922409be04fc8146ee03a5d42901f5a9f4f" target="_blank" rel="noopener">0x3652…9f4f</a> · <a href="https://opensea.io/collection/homo-sync" target="_blank" rel="noopener">OpenSea</a> · <a href="https://arweave.net/Ga0ADlLf3oo2rgGxfk2Guh8rmTL6zq9CYd5qf0GlxRs/1" target="_blank" rel="noopener">Arweave</a> · 2025</div></section>
+<div id="specs"><div class="col"><h3>mint info</h3><div class="r"><span>edition</span><span>33 × 1/1</span></div><div class="r"><span>contract deployment</span><span>25/05/2025</span></div><div class="r"><span>royalties</span><span>0%</span></div><div class="r"><span>token ids</span><span>1 – 33</span></div><div class="r"><span>contract address</span><span><a href="https://etherscan.io/address/0x36527922409be04fc8146ee03a5d42901f5a9f4f" target="_blank" rel="noopener">0x3652…9f4f</a></span></div><div class="r"><span>collection</span><span><a href="https://opensea.io/collection/homo-sync" target="_blank" rel="noopener">opensea</a></span></div></div><div class="col"><h3>tech specs</h3><div class="r"><span>blockchain</span><span>ethereum</span></div><div class="r"><span>standard</span><span>erc-721</span></div><div class="r"><span>metadata</span><span><a href="https://arweave.net/Ga0ADlLf3oo2rgGxfk2Guh8rmTL6zq9CYd5qf0GlxRs/1" target="_blank" rel="noopener">arweave</a></span></div><div class="r"><span>format</span><span>png</span></div><div class="r"><span>resolution</span><span>1000 × 1500 px</span></div><div class="r"><span>size</span><span>+/- 0.4 mb</span></div><div class="r"><span>artist</span><span>sys™</span></div><div class="r"><span>year</span><span>2025</span></div></div></div></section>
 <iframe id="sysfoot" src="systm/foot.html" title="systm.ai footer" tabindex="-1"></iframe><div id="sysspace"></div>
 <div id="view"><img id="viewimg" alt=""><div id="viewcap" class="ui"></div></div>
 <div id="ed">
