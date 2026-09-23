@@ -65,13 +65,13 @@
   #seek:hover #bar::after { opacity:1; }
   #dbg { position:absolute; left:2.6vw; bottom:6vh; font-size:.6em; opacity:.6; white-space:pre; display:none; z-index:3; text-transform:none; letter-spacing:.05em; }
   body.debug #dbg { display:block; }
-  body.edit #gl, body.edit #rows, body.edit #text { display:none; }
+  body.edit #rows, body.edit #text { display:none; }
   body.video #time, body.video #hint, body.video #seek, body.video #rows, body.video #text, body.video #down { display:none; }
   body.video #count { bottom:4vh; left:4vw; } body.video #title { left:4vw; top:3vh; }
   body.words #count { display:none; }
   /* systm.ai top bar + footer, copied verbatim into two iframes that load systm.ai's own css/js */
   #sysbar { position:fixed; top:0; left:0; width:100%; height:64px; border:0; background:transparent; z-index:9; display:block; }
-  #sysfoot { position:fixed; left:0; bottom:0; width:100%; height:300px; border:0; background:transparent; z-index:-1; pointer-events:none; display:block; }
+  #sysfoot { position:fixed; left:0; bottom:0; width:100%; height:300px; border:0; background:transparent; z-index:-1; pointer-events:none; display:block; opacity:var(--footop, 0); }
   #sysspace { height:300px; }
   #piece, #rows { background:var(--bg); }
   #title { top:calc(2.4vh + 44px); }
@@ -106,6 +106,11 @@
   #et { min-width:7ch; font-variant-numeric:tabular-nums; }
   #edstat { min-width:22ch; }
   #savestat { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; opacity:.6; text-align:right; }
+  #spotlist .spot { position:relative; flex:none; width:34px; height:52px; border:1px solid rgba(255,255,255,.25); border-radius:3px; background:#151515; cursor:pointer; overflow:hidden; opacity:.75; }
+  #spotlist .spot.empty { border-style:dashed; } #spotlist .spot.sel { border-color:#fff; opacity:1; } #spotlist .spot.over { border-color:#ff6; }
+  #spotlist .spot img { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
+  #spotlist .spot small { position:absolute; left:0; right:0; bottom:0; font-size:8px; letter-spacing:0; text-align:center; background:rgba(0,0,0,.55); color:#ddd; line-height:11px; }
+  #workbtns button { cursor:grab; } #ed input[type=number] { width:64px; background:#111; color:#eee; border:1px solid rgba(255,255,255,.28); font:inherit; padding:1px 3px; }
   #strip { display:block; width:100%; height:66px; margin-top:6px; background:#0b0b0b; border-radius:3px; cursor:grab; touch-action:none; }
   #strip.dragging { cursor:grabbing; }
   #help { position:fixed; left:0; right:0; bottom:178px; z-index:6; background:rgba(7,7,7,.96); border-top:1px solid rgba(255,255,255,.14); padding:8px 12px; font:12px/1.6 ui-monospace, Menlo, monospace; color:#bbb; display:none; }
@@ -244,10 +249,15 @@
     <span id="savestat">·</span>
   </div>
   <div class="row" id="worksrow"><span style="opacity:.6;flex:none">works</span><span id="workbtns" style="display:flex;gap:3px;flex:1;min-width:0"></span><span id="workstat" style="flex:none;opacity:.6"></span></div>
+  <div class="row" id="spotsrow"><span style="opacity:.6;flex:none">spots</span><span id="spotlist" style="display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto"></span><button id="bspotadd" title="a new empty spot at the playhead">+ spot</button><button id="bspotauto" title="replace all spots with the silences of 7 s and the tail">from silences</button></div>
+  <div class="row" id="spotedit" style="display:none"><span id="spotname" style="flex:none;min-width:12ch"></span>
+    <label>start <input id="sp_t0" type="number" step="0.1"></label><label>end <input id="sp_t1" type="number" step="0.1"></label>
+    <label>fade in <input id="sp_fin" type="number" step="0.1" min="0.2"></label><label>fade out <input id="sp_fout" type="number" step="0.1" min="0.2"></label>
+    <button id="bsp_t0">start = now</button><button id="bsp_t1">end = now</button><button id="bsp_go">go</button><button id="bsp_clear">no work</button><button id="bsp_del">delete</button><span id="spotstat" style="opacity:.6"></span></div>
   <canvas id="strip"></canvas>
 </div>
 <div id="help">click a word to select it and jump there · Enter = its start is now, then next word · Shift+Enter = its end is now · [ ] nudge ±50 ms · ↑ ↓ previous / next word · ← → seek ¼ s, shift 2 s · Space play/pause<br>
-strip: drag the background to scrub · drag a tick to move that word · wheel scrubs, ⌘/ctrl+wheel zooms · hold 0 = lit until the next word · every change is saved to disk after a second</div>
+strip: drag the background to scrub · drag a tick to move that word · wheel scrubs, ⌘/ctrl+wheel zooms · hold 0 = lit until the next word · every change is saved to disk after a second<br>spots: drag a work number onto a spot (or onto the strip to make one there) · click a spot to edit its start, end and fades · on the strip drag a spot edge to move that edge, its upper half to move the whole spot · from silences rebuilds the spots from the 7 s pauses</div>
 <textarea id="out" readonly></textarea>
 <audio id="a" preload="auto" src="iwish.mp3"></audio>
 <script>
@@ -324,12 +334,7 @@ function camera(F) {
 // ---------- the figures: only in the silences. One body per pause of MIN_GAP seconds or more between lines. ----------
 const MIN_GAP = 6.9, D_MAX = 8.0, D_MIN = 2.5, LEAD_IN = 2.0, TAIL = 1.2;   // slower fades; a body begins condensing under the last words and finishes dissolving under the first of the next line                     // 4.8: the eleventh pause is 4.86 s; the next one down is 4.6
 const LINES = lineEls.map(L => ({ s: lineStart[L.dataset.l], e: lineEnd[L.dataset.l], el: L })).filter(x => x.s != null).sort((x, y) => x.s - y.s);
-const PAUSES = [];
-for (let k = 0; k < LINES.length - 1; k++) { const gap = LINES[k + 1].s - LINES[k].e; if (gap >= MIN_GAP) PAUSES.push({ from: LINES[k].e, to: LINES[k + 1].s, gap, nextEl: LINES[k + 1].el }); }
-{ const L = LINES[LINES.length - 1]; PAUSES.push({ from: L.e, to: L.e + 10, gap: 10, nextEl: L.el, tail: true }); }   // after the last word: one more body for ten seconds, then the info
-const TAILP = PAUSES[PAUSES.length - 1];
-if (Q.get('words')) PAUSES.length = 0;                             // words only: no bodies, the poem never gives way
-const FIT = PAUSES.length;
+const PAUSES = []; let TAILP = null, FIT = 0, ORDER = [], T0 = 0, T1 = 1; const SLOT = 16, START_OF = {};
 function chosenWorks() {                                              // his selection if any (?works= or the saved setting), else a random draw, one per pause
   const src = Q.get('works') ? Q.get('works').split(',') : (SETTINGS.works && SETTINGS.works.length ? SETTINGS.works : null);
   let o = src ? src.map(x => parseInt(x, 10) - 1).filter((x, i, arr) => x >= 0 && x < N_WORKS && arr.indexOf(x) === i) : null;
@@ -337,12 +342,28 @@ function chosenWorks() {                                              // his sel
   else if (Q.get('shuffle')) for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; }
   return o.slice(0, FIT);
 }
-const ORDER = chosenWorks();
-PAUSES.forEach((P, k) => { P.work = ORDER[k];
-  P.t0 = P.from - LEAD_IN; P.t1 = P.to + TAIL;
-  const d = Math.max(D_MIN, Math.min(D_MAX, (P.t1 - P.t0 - 0.6) / 2));
-  P.inEnd = P.t0 + d; P.outStart = P.t1 - d;
-  P.textOut = [P.from, P.from + 1.0]; P.textIn = [P.to - 1.2, P.to - 0.1]; });   // the poem dissolves out after the line and returns just before the next
+function scanPauses() {                                               // the automatic proposal: one body per silence of MIN_GAP seconds or more, plus the tail
+  const out = [];
+  for (let k = 0; k < LINES.length - 1; k++) { const gap = LINES[k + 1].s - LINES[k].e; if (gap >= MIN_GAP) out.push({ from: LINES[k].e, to: LINES[k + 1].s, gap, nextEl: LINES[k + 1].el }); }
+  const L = LINES[LINES.length - 1]; out.push({ from: L.e, to: L.e + 10, gap: 10, nextEl: L.el, tail: true });
+  out.forEach(P => { P.t0 = P.from - LEAD_IN; P.t1 = P.to + TAIL; const d = Math.max(D_MIN, Math.min(D_MAX, (P.t1 - P.t0 - 0.6) / 2)); P.fin = d; P.fout = d; });
+  return out;
+}
+function buildPauses() {                                              // spots saved by the author win; otherwise the scan
+  PAUSES.length = 0;
+  const sp = (SETTINGS.spots || []).filter(x => x && x.work >= 1 && x.t1 > x.t0).slice().sort((x, y) => x.t0 - y.t0);
+  if (sp.length) sp.forEach(x => { const from = x.t0 + LEAD_IN, to = x.t1 - TAIL; const nx = LINES.find(L => L.s >= to - 0.5) || LINES[LINES.length - 1];
+      PAUSES.push({ from, to, gap: to - from, nextEl: nx.el, work: x.work - 1, t0: x.t0, t1: x.t1, fin: Math.max(0.2, +x.fin || 3), fout: Math.max(0.2, +x.fout || 3) }); });
+  else { const sc = scanPauses(); FIT = sc.length; ORDER = chosenWorks(); sc.forEach((P, k) => { P.work = ORDER[k]; PAUSES.push(P); }); }
+  PAUSES.forEach(P => { const span = P.t1 - P.t0; if (P.fin + P.fout > span - 0.2) { const f = (span - 0.2) / (P.fin + P.fout); P.fin *= f; P.fout *= f; }
+    P.inEnd = P.t0 + P.fin; P.outStart = P.t1 - P.fout;
+    P.textOut = [P.from, P.from + 1.0]; P.textIn = [Math.max(P.from + 1.2, P.to - 1.2), Math.max(P.from + 1.3, P.to - 0.1)]; });   // the poem dissolves out after the line and returns just before the next
+  if (Q.get('words')) PAUSES.length = 0;                             // words only: no bodies, the poem never gives way
+  FIT = PAUSES.length; TAILP = PAUSES.length ? PAUSES[PAUSES.length - 1] : null;
+  T0 = PAUSES.length ? PAUSES[0].t0 : 0; T1 = PAUSES.length ? PAUSES[PAUSES.length - 1].t1 : 1;
+  for (const k in START_OF) delete START_OF[k]; PAUSES.forEach(P => START_OF[P.work] = P.t0);
+}
+buildPauses();
 function textAlpha(t) {
   for (const P of PAUSES) { if (t < P.textOut[0] || t > P.textIn[1]) continue;
     if (t <= P.textOut[1]) return 1 - ease((t - P.textOut[0]) / (P.textOut[1] - P.textOut[0]));
@@ -350,9 +371,7 @@ function textAlpha(t) {
     return 0; }
   return 1;
 }
-const T0 = PAUSES.length ? PAUSES[0].t0 : 0, T1 = PAUSES.length ? PAUSES[PAUSES.length - 1].t1 : 1, SLOT = 16;
 if (Q.get('words')) document.body.classList.add('words');
-const START_OF = {}; PAUSES.forEach(P => START_OF[P.work] = P.t0);
 const ease = x => { x = Math.max(0, Math.min(1, x)); return x * x * x * (x * (x * 6 - 15) + 10); };
 function blurOf(inB, outA) { if (outA > 0) return 0.35 + 1.9 * outA; if (inB < 1) return 0.35 + 2.3 * Math.pow(1 - inB, 1.4); return 0.35; }
 function figState(t) {
@@ -449,7 +468,7 @@ function drawGL(t) {
   if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; gl.viewport(0, 0, W, H); }
   const st = figState(t);
   const WIDE = canvas.clientWidth >= 900 || document.body.classList.contains('video');   // video renders keep every texture resident
-  if (WIDE) { if (!window.__preloaded) { window.__preloaded = true; ORDER.forEach((w, k) => setTimeout(() => ensure(w), 150 + k * 260)); } }
+  if (WIDE) { if (!window.__preloaded) { window.__preloaded = true; PAUSES.map(P => P.work).forEach((w, k) => setTimeout(() => ensure(w), 150 + k * 260)); } }
   else { const nx1 = PAUSES[st.slot + 1] && PAUSES[st.slot + 1].work; ensure(st.b); if (nx1 != null) ensure(nx1); evict(new Set([st.b, nx1].filter(x => x != null))); }
   ensure(st.b);
   const now = performance.now(); const dt = Math.min(0.1, (now - lastFrame) / 1000); lastFrame = now; glTime += dt;
@@ -490,7 +509,7 @@ document.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventD
   if (EDIT) return;
   if (e.code === 'ArrowLeft')  a.currentTime = Math.max(0, a.currentTime - 5);
   if (e.code === 'ArrowRight') a.currentTime = Math.min(a.duration || 0, a.currentTime + 5); });
-if (!EDIT) { try { if (!initGL()) console.warn('no webgl2'); } catch (e) { console.error('gl', e); gl = null; } }
+{ try { if (!initGL()) console.warn('no webgl2'); } catch (e) { console.error('gl', e); gl = null; } }   // the editor draws the bodies too, so spots can be judged while scrubbing
 function dots(str, size, gap) {                       // the SYS ProtoTypeface: 5x5 dot bitmaps drawn as circles; each glyph advances by its own width
   const pitch = size + gap; let x = 0, out = '';
   for (const raw of String(str).toLowerCase()) {
@@ -563,14 +582,15 @@ if (EDIT) {
     }).catch(() => { savestat.textContent = 'browser only · run serve.py to save'; }); }
   function apply() { WORDS.forEach((w, i) => { w.start = starts[i]; w.end = starts[i] == null ? null : endOf(i); });
     const now = new Date(); const stamp = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + 'T' + now.toTimeString().slice(0, 8);
-    try { localStorage.setItem('iwish-edit', JSON.stringify({ starts, ends, settings: { hold: SETTINGS.hold, fade: SETTINGS.fade, lead: SETTINGS.lead, works: SETTINGS.works }, saved_at: stamp })); } catch (e) {}
+    try { localStorage.setItem('iwish-edit', JSON.stringify({ starts, ends, settings: { hold: SETTINGS.hold, fade: SETTINGS.fade, lead: SETTINGS.lead, works: SETTINGS.works, spots: SETTINGS.spots }, saved_at: stamp })); } catch (e) {}
     clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 1200); savestat.textContent = 'saving';
     for (const k in lineStart) delete lineStart[k]; for (const k in lineEnd) delete lineEnd[k];
-    for (const w of WORDS) { if (w.start == null) continue; const L = lineOf[w.i].dataset.l; lineStart[L] = Math.min(lineStart[L] ?? 1e9, w.start); lineEnd[L] = Math.max(lineEnd[L] ?? -1, w.end); } }
+    for (const w of WORDS) { if (w.start == null) continue; const L = lineOf[w.i].dataset.l; lineStart[L] = Math.min(lineStart[L] ?? 1e9, w.start); lineEnd[L] = Math.max(lineEnd[L] ?? -1, w.end); }
+    LINES.forEach(L => { L.s = lineStart[L.el.dataset.l]; L.e = lineEnd[L.el.dataset.l]; }); buildPauses(); if (typeof showSpots === 'function') showSpots(); }
   const pp = document.getElementById('pp'), et = document.getElementById('et'), rng = document.getElementById('rng'), strip = document.getElementById('strip'),
         stat = document.getElementById('edstat'), out = document.getElementById('out'), ctx = strip.getContext('2d');
   const fmt2 = s => (s / 60 | 0) + ':' + (s % 60).toFixed(2).padStart(5, '0');
-  function exportJSON() { return JSON.stringify({ method: 'edited-by-author', settings: { hold: SETTINGS.hold, fade: SETTINGS.fade, lead: SETTINGS.lead, works: SETTINGS.works, manual_ends: ends.map((e, i) => e != null ? i : -1).filter(i => i >= 0) },
+  function exportJSON() { return JSON.stringify({ method: 'edited-by-author', settings: { hold: SETTINGS.hold, fade: SETTINGS.fade, lead: SETTINGS.lead, works: SETTINGS.works, spots: (SETTINGS.spots || []).map(x => ({ t0: +x.t0.toFixed(2), t1: +x.t1.toFixed(2), fin: +x.fin.toFixed(2), fout: +x.fout.toFixed(2), work: x.work || null })), manual_ends: ends.map((e, i) => e != null ? i : -1).filter(i => i >= 0) },
     words: WORDS.map((w, i) => ({ word: els[i].textContent.replace(/[,.]/g, '').toLowerCase(), start: starts[i], end: w.end, line: w.line })) }); }
   function markSel() { els.forEach((el, i) => { el.classList.toggle('sel', i === sel); el.classList.toggle('set', starts[i] != null && starts[i] !== orig[i]); });
     const n = starts.filter((v, i) => v !== orig[i]).length; stat.textContent = 'word ' + (sel + 1) + '/' + els.length + ' · ' + n + ' edited';
@@ -583,6 +603,7 @@ if (EDIT) {
     if (ENV) { ctx.fillStyle = 'rgba(255,255,255,.16)'; const f0 = Math.max(0, Math.floor((t - SPAN / 2) / 0.02)), f1 = Math.min(ENV.length, Math.ceil((t + SPAN / 2) / 0.02));
       const step = Math.max(1, Math.floor((f1 - f0) / (W / devicePixelRatio)));
       for (let f = f0; f < f1; f += step) { let v = 0; for (let q = f; q < Math.min(f1, f + step); q++) v = Math.max(v, ENV[q]); const h = v / 255 * H; ctx.fillRect(x(f * 0.02), H - h, Math.max(1, W / (SPAN / 0.02) * step), h); } }
+    drawSpots(x, W, H);
     ctx.font = (10 * devicePixelRatio) + 'px ui-monospace, Menlo, monospace';
     WORDS.forEach((w, i) => { if (starts[i] == null) return; const px = x(starts[i]); if (px < -60 || px > W + 60) return;
       const pe = x(litEnd(w)); ctx.fillStyle = i === sel ? 'rgba(255,255,255,.22)' : 'rgba(255,255,255,.09)'; ctx.fillRect(px, H * 0.55, Math.max(2, pe - px), H * 0.45);
@@ -611,6 +632,67 @@ if (EDIT) {
   workbtns.addEventListener('click', e => { e.stopPropagation(); const b = e.target.closest('button'); if (!b) return; const n = +b.dataset.n; SETTINGS.works = SETTINGS.works || [];
     const i = SETTINGS.works.indexOf(n); if (i >= 0) SETTINGS.works.splice(i, 1); else SETTINGS.works.push(n); showWorks(); apply(); });
   showWorks();
+  // ---------- spots: where a body stands, which work, how it fades. Saved with the timeline. ----------
+  const spotlist = document.getElementById('spotlist'), spotedit = document.getElementById('spotedit'), spotname = document.getElementById('spotname'), spotstat = document.getElementById('spotstat');
+  const spI = { t0: document.getElementById('sp_t0'), t1: document.getElementById('sp_t1'), fin: document.getElementById('sp_fin'), fout: document.getElementById('sp_fout') };
+  let spSel = -1;
+  if (!Array.isArray(SETTINGS.spots) || !SETTINGS.spots.length) SETTINGS.spots = PAUSES.map(P => ({ t0: +P.t0.toFixed(2), t1: +P.t1.toFixed(2), fin: +P.fin.toFixed(2), fout: +P.fout.toFixed(2), work: P.work + 1 }));   // start from what plays now
+  const fmt1 = t => (t / 60 | 0) + ':' + (t % 60).toFixed(1).padStart(4, '0');
+  function spotSave() { const cur = SETTINGS.spots[spSel]; SETTINGS.spots.sort((x, y) => x.t0 - y.t0); spSel = cur ? SETTINGS.spots.indexOf(cur) : -1; apply(); showSpots(); drawStrip(); }   // the selection follows its spot through the sort
+  function showSpots() {
+    const sp = SETTINGS.spots || [];
+    spotlist.innerHTML = sp.map((x, i) => '<span class="spot ' + (x.work ? '' : 'empty') + (i === spSel ? ' sel' : '') + '" data-i="' + i + '" title="' + fmt1(x.t0) + ' to ' + fmt1(x.t1) + '">' + (x.work ? '<img src="works/t' + String(x.work).padStart(2, '0') + '.webp">' : '') + '<small>' + fmt1(x.t0) + '</small></span>').join('');
+    const used = sp.filter(x => x.work).length; spotstat.textContent = used + ' of ' + sp.length + ' spots filled';
+    workstat.textContent = used + ' bodies in ' + sp.length + ' spots · drag a work number onto a spot';
+    if (spSel >= 0 && sp[spSel]) { const x = sp[spSel]; spotedit.style.display = ''; spotname.textContent = 'spot ' + (spSel + 1) + (x.work ? ' · work ' + String(x.work).padStart(2, '0') : ' · empty');
+      spI.t0.value = x.t0.toFixed(1); spI.t1.value = x.t1.toFixed(1); spI.fin.value = x.fin.toFixed(1); spI.fout.value = x.fout.toFixed(1); } else spotedit.style.display = 'none';
+  }
+  function drawSpots(x, W, H) {
+    const sp = SETTINGS.spots || []; ctx.font = (10 * devicePixelRatio) + 'px ui-monospace, Menlo, monospace';
+    sp.forEach((s, i) => { const x0 = x(s.t0), x1 = x(s.t1); if (x1 < 0 || x0 > W) return;
+      const g = ctx.createLinearGradient(x0, 0, x1, 0), span = Math.max(0.01, s.t1 - s.t0), al = s.work ? 0.22 : 0.08;
+      g.addColorStop(0, 'rgba(255,220,120,0)'); g.addColorStop(Math.min(1, s.fin / span), 'rgba(255,220,120,' + al + ')'); g.addColorStop(Math.max(0, 1 - s.fout / span), 'rgba(255,220,120,' + al + ')'); g.addColorStop(1, 'rgba(255,220,120,0)');
+      ctx.fillStyle = g; ctx.fillRect(x0, 0, x1 - x0, H);
+      ctx.strokeStyle = i === spSel ? '#ffd870' : 'rgba(255,220,120,.5)'; ctx.lineWidth = (i === spSel ? 2 : 1) * devicePixelRatio; ctx.setLineDash(s.work ? [] : [4 * devicePixelRatio, 3 * devicePixelRatio]);
+      ctx.strokeRect(x0, 1, x1 - x0, H - 2); ctx.setLineDash([]);
+      ctx.fillStyle = i === spSel ? '#ffd870' : 'rgba(255,220,120,.8)'; ctx.fillText((s.work ? 'work ' + String(s.work).padStart(2, '0') : 'empty spot') + ' · ' + (s.t1 - s.t0).toFixed(1) + ' s', Math.max(x0, 0) + 4 * devicePixelRatio, H - 5 * devicePixelRatio); });
+  }
+  function spotHit(px, py, W) {                                        // what is under the pointer on the strip: an edge, or a body in the upper half
+    const t = a.currentTime, x = s => (s - (t - SPAN / 2)) / SPAN * W; const sp = SETTINGS.spots || [];
+    for (let i = 0; i < sp.length; i++) { const x0 = x(sp[i].t0), x1 = x(sp[i].t1);
+      if (Math.abs(px - x0) < 7) return { kind: 'spot', i, edge: 't0', o: sp[i].t0 };
+      if (Math.abs(px - x1) < 7) return { kind: 'spot', i, edge: 't1', o: sp[i].t1 }; }
+    if (py < strip.clientHeight * 0.45) for (let i = 0; i < sp.length; i++) { if (px > x(sp[i].t0) && px < x(sp[i].t1)) return { kind: 'spot', i, edge: 'all', o: sp[i].t0, o1: sp[i].t1 }; }
+    return null;
+  }
+  function spotDrag(d, dt) { const s = SETTINGS.spots[d.i]; if (!s) return; spSel = d.i;
+    if (d.edge === 't0') s.t0 = Math.max(0, Math.min(s.t1 - 1, d.o + dt)); else if (d.edge === 't1') s.t1 = Math.max(s.t0 + 1, d.o + dt);
+    else { const len = d.o1 - d.o; s.t0 = Math.max(0, d.o + dt); s.t1 = s.t0 + len; }
+    buildPauses(); showSpots(); drawStrip(); }
+  function spotSetWork(i, n) { const s = SETTINGS.spots[i]; if (!s) return; s.work = n || null; spSel = i; spotSave(); }
+  spotlist.addEventListener('click', e => { e.stopPropagation(); const el = e.target.closest('.spot'); if (!el) return; spSel = +el.dataset.i; showSpots(); drawStrip(); });
+  spotlist.addEventListener('dblclick', e => { e.stopPropagation(); const el = e.target.closest('.spot'); if (!el) return; const s = SETTINGS.spots[+el.dataset.i]; if (s) seekTo(s.t0 + 0.5); });
+  function armDrag() { workbtns.querySelectorAll('button').forEach(b => { b.draggable = true; b.ondragstart = e => { e.dataTransfer.setData('text/plain', b.dataset.n); e.dataTransfer.effectAllowed = 'copy'; }; }); }
+  armDrag(); workbtns.addEventListener('click', armDrag);
+  spotlist.addEventListener('dragover', e => { e.preventDefault(); const el = e.target.closest('.spot'); spotlist.querySelectorAll('.over').forEach(x => x.classList.remove('over')); if (el) el.classList.add('over'); });
+  spotlist.addEventListener('dragleave', e => { spotlist.querySelectorAll('.over').forEach(x => x.classList.remove('over')); });
+  spotlist.addEventListener('drop', e => { e.preventDefault(); e.stopPropagation(); const el = e.target.closest('.spot'); const n = parseInt(e.dataTransfer.getData('text/plain'), 10); if (el && n) spotSetWork(+el.dataset.i, n); });
+  strip.addEventListener('dragover', e => e.preventDefault());
+  strip.addEventListener('drop', e => { e.preventDefault(); e.stopPropagation(); const n = parseInt(e.dataTransfer.getData('text/plain'), 10); if (!n) return;
+    const W = strip.clientWidth, t = a.currentTime - SPAN / 2 + e.offsetX / W * SPAN; SETTINGS.spots.push({ t0: Math.max(0, +t.toFixed(2)), t1: +(t + 8).toFixed(2), fin: 3, fout: 3, work: n }); spSel = SETTINGS.spots.length - 1; spotSave(); });
+  document.getElementById('bspotadd').addEventListener('click', e => { e.stopPropagation(); const t = a.currentTime; SETTINGS.spots.push({ t0: +t.toFixed(2), t1: +(t + 8).toFixed(2), fin: 3, fout: 3, work: null }); spSel = SETTINGS.spots.length - 1; spotSave(); });
+  document.getElementById('bspotauto').addEventListener('click', e => { e.stopPropagation(); if (!confirm('replace all spots with the silences of ' + MIN_GAP + ' s and the tail?')) return;
+    SETTINGS.spots = []; buildPauses(); SETTINGS.spots = PAUSES.map(P => ({ t0: +P.t0.toFixed(2), t1: +P.t1.toFixed(2), fin: +P.fin.toFixed(2), fout: +P.fout.toFixed(2), work: P.work + 1 })); spSel = -1; spotSave(); });
+  Object.entries(spI).forEach(([k, inp]) => { inp.addEventListener('click', e => e.stopPropagation()); inp.addEventListener('keydown', e => e.stopPropagation());
+    inp.addEventListener('change', e => { e.stopPropagation(); const s = SETTINGS.spots[spSel]; if (!s) return; const v = parseFloat(inp.value); if (isNaN(v)) return;
+      if (k === 't0') s.t0 = Math.max(0, Math.min(s.t1 - 1, v)); else if (k === 't1') s.t1 = Math.max(s.t0 + 1, v); else s[k] = Math.max(0.2, v); spotSave(); }); });
+  document.getElementById('bsp_t0').addEventListener('click', e => { e.stopPropagation(); const s = SETTINGS.spots[spSel]; if (s) { s.t0 = Math.min(s.t1 - 1, +a.currentTime.toFixed(2)); spotSave(); } });
+  document.getElementById('bsp_t1').addEventListener('click', e => { e.stopPropagation(); const s = SETTINGS.spots[spSel]; if (s) { s.t1 = Math.max(s.t0 + 1, +a.currentTime.toFixed(2)); spotSave(); } });
+  document.getElementById('bsp_go').addEventListener('click', e => { e.stopPropagation(); const s = SETTINGS.spots[spSel]; if (s) seekTo(Math.max(0, s.t0 - 1)); });
+  document.getElementById('bsp_clear').addEventListener('click', e => { e.stopPropagation(); spotSetWork(spSel, null); });
+  document.getElementById('bsp_del').addEventListener('click', e => { e.stopPropagation(); if (spSel < 0) return; SETTINGS.spots.splice(spSel, 1); spSel = -1; spotSave(); });
+  spotedit.addEventListener('click', e => e.stopPropagation());
+  showSpots();
   function nudge(d) { if (starts[sel] == null) return; starts[sel] = +(starts[sel] + d).toFixed(3); apply(); markSel(); drawStrip(); }
   els.forEach((el, i) => el.addEventListener('click', e => { e.stopPropagation(); setSel(i); if (starts[i] != null) { a.currentTime = Math.max(0, starts[i] - 0.15); } camera(paint(a.currentTime)); drawStrip(); }));
   pp.addEventListener('click', e => { e.stopPropagation(); toggle(); });
@@ -628,13 +710,16 @@ if (EDIT) {
   strip.addEventListener('pointerdown', e => { e.stopPropagation(); const W = strip.clientWidth, t = a.currentTime, x = e.offsetX; let best = null, bd = 7;
     WORDS.forEach((w, i) => { if (starts[i] == null) return; const px = (starts[i] - (t - SPAN / 2)) / SPAN * W; if (Math.abs(px - x) < bd) { bd = Math.abs(px - x); best = i; } });
     if (!a.paused) a.pause();
-    drag = best != null ? { kind: 'tick', i: best, t0: t } : { kind: 'scrub', x0: x, t0: t, moved: false };
+    const sd = best == null ? spotHit(x, e.offsetY, W) : null;
+    drag = best != null ? { kind: 'tick', i: best, t0: t } : sd ? Object.assign({ t0: t, x0: x }, sd) : { kind: 'scrub', x0: x, t0: t, moved: false };
     if (best != null) setSel(best); strip.classList.add('dragging'); strip.setPointerCapture(e.pointerId); });
   strip.addEventListener('pointermove', e => { if (!drag) return; const W = strip.clientWidth;
     if (drag.kind === 'tick') { starts[drag.i] = +(drag.t0 - SPAN / 2 + e.offsetX / W * SPAN).toFixed(3); apply(); drawStrip(); }
+    else if (drag.kind === 'spot') { spotDrag(drag, (e.offsetX - drag.x0) / W * SPAN); }
     else { if (Math.abs(e.offsetX - drag.x0) > 2) drag.moved = true; seekTo(drag.t0 - (e.offsetX - drag.x0) / W * SPAN); } });
   strip.addEventListener('pointerup', e => { if (!drag) return; const W = strip.clientWidth;
     if (drag.kind === 'scrub' && !drag.moved) seekTo(drag.t0 - SPAN / 2 + e.offsetX / W * SPAN);
+    if (drag.kind === 'spot') { spotSave(); }
     drag = null; strip.classList.remove('dragging'); markSel(); drawStrip(); });
   strip.addEventListener('wheel', e => { e.preventDefault(); e.stopPropagation();
     if (e.ctrlKey || e.metaKey) setSpan(SPAN * (e.deltaY > 0 ? 1.15 : 0.87)); else seekTo(a.currentTime + (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) / 100 * SPAN * 0.12); }, { passive: false });
@@ -667,6 +752,7 @@ window.addEventListener('resize', () => camera(paint(a.currentTime)));
     const max = R.scrollHeight - innerHeight, s0 = T.getBoundingClientRect().top + scrollY - innerHeight;
     const p = max > s0 ? Math.min(1, Math.max(0, (scrollY - s0) / (max - s0))) : 1, e = 1 - p;
     R.style.setProperty('--tblur', (26 * e).toFixed(1) + 'px'); R.style.setProperty('--talpha', (0.82 * e).toFixed(3));
+    const q = Math.max(0, Math.min(1, (p - 0.72) / 0.28)); R.style.setProperty('--footop', (q * q * (3 - 2 * q)).toFixed(3));   // the device and the bottom line appear only over the last stretch
   }
   // each line of the full text dissolves as it nears the top of the window and condenses as it enters from the bottom
   const FL = [...document.querySelectorAll('#text .full .fl')], BAR = 64, MAXBLUR = 7;
