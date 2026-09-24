@@ -138,7 +138,7 @@
   @media (max-width: 899px) { .grid { grid-template-columns: repeat(3, 1fr); gap: 6vw 3vw; } }
   .work { margin:0; opacity:0; transform: translateY(10px); transition: opacity 2.4s ease, transform 2.4s ease; }
   .work.on { opacity:1; transform:none; }
-  .work img { width:100%; height:auto; display:block; aspect-ratio: 1 / 2; opacity:.9; transition: opacity 1.1s ease; }
+  .work img { width:100%; height:auto; display:block; aspect-ratio: 1 / 2; opacity:.7; transition: opacity .7s ease; }
   @media (hover:hover) { .work:hover img { opacity:1; } }
   .work span { display:block; margin-top:.9em; font-family:"SYS Regular", ui-monospace, monospace; font-size:10px; letter-spacing:.2em; color:var(--ui); }
   #down { position:absolute; left:0; right:0; bottom:calc(5.8vh + 44px); text-align:center; z-index:3; opacity:0; pointer-events:none; transition:opacity 2.5s; }
@@ -158,6 +158,7 @@
   #sp .bar .t { color:#222; min-width:7ch; font-variant-numeric:tabular-nums; } #sp .bar .hint { flex:1; text-align:center; color:#b4b4b4; letter-spacing:.12em; }
   #sp button { background:none; border:1px solid #dcdcdc; color:#444; font:inherit; letter-spacing:inherit; text-transform:inherit; padding:5px 11px; border-radius:3px; cursor:pointer; }
   #sp button:hover { border-color:#8a8a8a; color:#111; } #sp button.primary { border-color:#222; color:#111; } #sp button:disabled { opacity:.35; cursor:default; }
+  #sp_posrow .k { align-self:center; margin-right:.4em; color:#8c8c8c; }
   #tl { display:block; width:calc(100% - 44px); height:92px; margin:0 22px 6px; cursor:crosshair; flex:none; touch-action:none; }
   #sp .low { display:flex; flex:1; min-height:0; gap:22px; padding:2px 22px 16px; }
   #grid { flex:1; display:grid; grid-template-columns:repeat(auto-fill, minmax(58px, 1fr)); gap:7px; align-content:start; overflow:auto; padding-right:4px; }
@@ -171,7 +172,7 @@
   #insp .pic img { width:100%; height:100%; object-fit:cover; display:block; } #insp .meta { color:#222; line-height:1.9; } #insp .meta small { display:block; color:#9a9a9a; font-size:10px; }
   #insp label { display:grid; grid-template-columns:64px 1fr 58px; align-items:center; gap:10px; color:#8c8c8c; }
   #insp input[type=range] { width:100%; accent-color:#222; margin:0; } #insp input[type=number] { width:58px; border:1px solid #e2e2e2; border-radius:3px; font:inherit; padding:3px 4px; background:#fff; color:#222; letter-spacing:0; }
-  #insp .acts { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; } #insp.empty label, #insp.empty .acts .sel { display:none; }
+  #insp .acts { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; } #insp.empty label, #insp.empty #sp_posrow, #insp.empty .acts .sel { display:none; }
 </style>
 </head>
 <body>
@@ -265,6 +266,7 @@
       <label>end <input id="sp_t1" type="range" min="0" max="288" step="0.1"><input id="sp_t1n" type="number" step="0.1"></label>
       <label>fade in <input id="sp_fin" type="range" min="0.2" max="12" step="0.1"><input id="sp_finn" type="number" step="0.1" min="0.2"></label>
       <label>fade out <input id="sp_fout" type="range" min="0.2" max="12" step="0.1"><input id="sp_foutn" type="number" step="0.1" min="0.2"></label>
+      <div class="acts" id="sp_posrow"><span class="k">position</span><button data-pos="l">left</button><button data-pos="c">center</button><button data-pos="r">right</button></div>
       <div class="acts"><button id="sp_prev" class="sel">▷ preview</button><button id="sp_noimg" class="sel">remove image</button><button id="sp_del" class="sel">delete spot</button><button id="sp_new">+ empty spot at playhead</button></div>
     </div>
   </div>
@@ -388,7 +390,7 @@ function buildPauses() {                                              // spots s
   PAUSES.length = 0;
   const sp = (SETTINGS.spots || []).filter(x => x && x.work >= 1 && x.t1 > x.t0).slice().sort((x, y) => x.t0 - y.t0);
   if (sp.length) sp.forEach(x => { const from = x.t0 + LEAD_IN, to = x.t1 - TAIL; const nx = LINES.find(L => L.s >= to - 0.5) || LINES[LINES.length - 1];
-      PAUSES.push({ from, to, gap: to - from, nextEl: nx.el, work: x.work - 1, t0: x.t0, t1: x.t1, fin: Math.max(0.2, +x.fin || 3), fout: Math.max(0.2, +x.fout || 3) }); });
+      PAUSES.push({ from, to, gap: to - from, nextEl: nx.el, work: x.work - 1, t0: x.t0, t1: x.t1, fin: Math.max(0.2, +x.fin || 3), fout: Math.max(0.2, +x.fout || 3), pos: x.pos === 'l' || x.pos === 'r' ? x.pos : 'c' }); });
   else { const sc = scanPauses(); FIT = sc.length; ORDER = chosenWorks(); sc.forEach((P, k) => { P.work = ORDER[k]; PAUSES.push(P); }); }
   PAUSES.forEach(P => { const span = P.t1 - P.t0; if (P.fin + P.fout > span - 0.2) { const f = (span - 0.2) / (P.fin + P.fout); P.fin *= f; P.fout *= f; }
     P.inEnd = P.t0 + P.fin; P.outStart = P.t1 - P.fout;
@@ -410,14 +412,14 @@ if (Q.get('words')) document.body.classList.add('words');
 const ease = x => { x = Math.max(0, Math.min(1, x)); return x * x * x * (x * (x * 6 - 15) + 10); };
 function blurOf(inB, outA) { if (outA > 0) return 0.35 + 1.9 * outA; if (inB < 1) return 0.35 + 2.3 * Math.pow(1 - inB, 1.4); return 0.35; }
 function figState(t) {
-  if (!PAUSES.length) return { a: 0, b: 0, outA: 1, inB: 0, phase: 'none', slot: 0 };
+  if (!PAUSES.length) return { a: 0, b: 0, outA: 1, inB: 0, phase: 'none', slot: 0, pos: 'c' };
   let k = -1; for (let i = 0; i < PAUSES.length; i++) if (t >= PAUSES[i].t0 && t < PAUSES[i].t1) { k = i; break; }
   if (k < 0) { const nxt = PAUSES.findIndex(P => P.t0 > t); const w = nxt >= 0 ? PAUSES[nxt].work : (PAUSES.length ? PAUSES[PAUSES.length - 1].work : 0);
-    return { a: w, b: w, outA: 1, inB: 0, phase: 'none', slot: Math.max(0, nxt) }; }
+    return { a: w, b: w, outA: 1, inB: 0, phase: 'none', slot: Math.max(0, nxt), pos: (nxt >= 0 ? PAUSES[nxt].pos : 'c') || 'c' }; }
   const P = PAUSES[k]; let inB = 1, outA = 0, phase = 'hold';
   if (t < P.inEnd) { inB = ease((t - P.t0) / (P.inEnd - P.t0)); phase = 'in'; }
   else if (t >= P.outStart) { outA = ease((t - P.outStart) / (P.t1 - P.outStart)); phase = 'out'; }
-  return { a: P.work, b: P.work, outA, inB, phase, slot: k, single: true };
+  return { a: P.work, b: P.work, outA, inB, phase, slot: k, single: true, pos: P.pos || 'c' };
 }
 // ---------- WebGL layer ----------
 const canvas = document.getElementById('gl'); let gl = null, prog = null, U = {}, tex = new Map(), loading = new Set(), placeholder = null;
@@ -485,7 +487,7 @@ const PLACE = (() => {                                // one place per body, dra
   const out = []; let side = rnd() < 0.5 ? -1 : 1;
   for (let i = 0; i < N_WORKS; i++) { out.push({ side, u: rnd(), h: 0.98 + rnd() * 0.06, y: (rnd() - 0.5) * 0.02 }); side = rnd() < 0.7 ? -side : side; }
   return out; })();
-function rectFor(i, t, W, H) {                                   // every body stands in the centre; the poem has dissolved away while it is there
+function rectFor(i, t, W, H, pos = 'c') {                        // a body stands in the centre unless its spot says left or right; the poem has dissolved away while it is there
   const tt = Math.max(0, (t - (START_OF[i] ?? T0)) / SLOT);
   const P = PLACE[i] || PLACE[0];
   let h = H * (P.h + 0.02 * tt), w = h * 2 / 3;
@@ -493,7 +495,8 @@ function rectFor(i, t, W, H) {                                   // every body s
   const FEET = 0.92, HEAD = 0.08, floor = H * 0.885 + P.y * H, ceiling = H * 0.03;
   if (floor - FEET * h + HEAD * h < ceiling) { h = (floor - ceiling) / (FEET - HEAD); w = h * 2 / 3; }
   const side = [0, 0.012, -0.01, 0.016, -0.006][i % 5];
-  const x = (W - w) / 2 + side * W + Math.sin(i * 1.7 + tt * 0.6) * 5, y = floor - FEET * h - tt * 0.006 * H;
+  const shift = Math.max(0, Math.min(W * 0.24, 0.46 * W - 0.225 * w));   // at most 24% of the width, and the figure itself (the middle ~45% of its image) never leaves the screen
+  const x = (W - w) / 2 + (pos === 'l' ? -shift : pos === 'r' ? shift : 0) + side * W + Math.sin(i * 1.7 + tt * 0.6) * 5, y = floor - FEET * h - tt * 0.006 * H;
   return [x, y, w, h];
 }
 let glTime = 0, lastFrame = performance.now(), fpsAcc = [];
@@ -508,7 +511,7 @@ function drawGL(t) {
   ensure(st.b);
   const now = performance.now(); const dt = Math.min(0.1, (now - lastFrame) / 1000); lastFrame = now; glTime += dt;
   fpsAcc.push(dt); if (fpsAcc.length > 120) fpsAcc.shift();
-  const r = rectFor(st.b, t, W, H);
+  const r = rectFor(st.b, t, W, H, st.pos);
   const leaving = st.phase === 'out', present = st.phase === 'in' || st.phase === 'hold';
   gl.useProgram(prog);
   gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex.get(st.b) || placeholder); gl.uniform1i(U.uA, 0);
@@ -625,7 +628,7 @@ if (EDIT) {
   const pp = document.getElementById('pp'), et = document.getElementById('et'), rng = document.getElementById('rng'), strip = document.getElementById('strip'),
         stat = document.getElementById('edstat'), out = document.getElementById('out'), ctx = strip.getContext('2d');
   const fmt2 = s => (s / 60 | 0) + ':' + (s % 60).toFixed(2).padStart(5, '0');
-  function exportJSON() { return JSON.stringify({ method: 'edited-by-author', settings: { hold: SETTINGS.hold, fade: SETTINGS.fade, lead: SETTINGS.lead, works: SETTINGS.works, spots: (SETTINGS.spots || []).map(x => ({ t0: +x.t0.toFixed(2), t1: +x.t1.toFixed(2), fin: +x.fin.toFixed(2), fout: +x.fout.toFixed(2), work: x.work || null })), manual_ends: ends.map((e, i) => e != null ? i : -1).filter(i => i >= 0) },
+  function exportJSON() { return JSON.stringify({ method: 'edited-by-author', settings: { hold: SETTINGS.hold, fade: SETTINGS.fade, lead: SETTINGS.lead, works: SETTINGS.works, spots: (SETTINGS.spots || []).map(x => ({ t0: +x.t0.toFixed(2), t1: +x.t1.toFixed(2), fin: +x.fin.toFixed(2), fout: +x.fout.toFixed(2), work: x.work || null, pos: x.pos === 'l' || x.pos === 'r' ? x.pos : 'c' })), manual_ends: ends.map((e, i) => e != null ? i : -1).filter(i => i >= 0) },
     words: WORDS.map((w, i) => ({ word: els[i].textContent.replace(/[,.]/g, '').toLowerCase(), start: starts[i], end: w.end, line: w.line })) }); }
   function markSel() { els.forEach((el, i) => { el.classList.toggle('sel', i === sel); el.classList.toggle('set', starts[i] != null && starts[i] !== orig[i]); });
     const n = starts.filter((v, i) => v !== orig[i]).length; stat.textContent = 'word ' + (sel + 1) + '/' + els.length + ' · ' + n + ' edited';
@@ -766,7 +769,7 @@ window.addEventListener('resize', () => camera(paint(a.currentTime)));
   const fmt = t => (t / 60 | 0) + ':' + (t % 60).toFixed(1).padStart(4, '0');
   // ---- persistence: the same file the word editor writes, words untouched ----
   function payload() { return JSON.stringify({ method: 'edited-by-author',
-    settings: { hold: SETTINGS.hold, fade: SETTINGS.fade, lead: SETTINGS.lead, works: SETTINGS.works, manual_ends: SETTINGS.manual_ends || [], spots: SP.map(x => ({ t0: +x.t0.toFixed(2), t1: +x.t1.toFixed(2), fin: +x.fin.toFixed(2), fout: +x.fout.toFixed(2), work: x.work || null })) },
+    settings: { hold: SETTINGS.hold, fade: SETTINGS.fade, lead: SETTINGS.lead, works: SETTINGS.works, manual_ends: SETTINGS.manual_ends || [], spots: SP.map(x => ({ t0: +x.t0.toFixed(2), t1: +x.t1.toFixed(2), fin: +x.fin.toFixed(2), fout: +x.fout.toFixed(2), work: x.work || null, pos: x.pos === 'l' || x.pos === 'r' ? x.pos : 'c' })) },
     words: WORDS.map((w, i) => ({ word: els[i].textContent.replace(/[,.]/g, '').toLowerCase(), start: w.start, end: w.end, line: w.line })) }); }
   function save() { if (Q.get('nosave')) { $('sp_save').textContent = 'not saving (?nosave=1)'; return; } $('sp_save').textContent = 'saving'; clearTimeout(saveT); saveT = setTimeout(() => {
     fetch('/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload() }).then(r => r.json()).then(r => { $('sp_save').textContent = r.ok ? 'saved ' + r.saved_at.slice(11, 16) : 'save failed'; }).catch(() => { $('sp_save').textContent = 'run serve.py to save'; }); }, 900); }
@@ -786,7 +789,8 @@ window.addEventListener('resize', () => camera(paint(a.currentTime)));
     if (!x) { $('sp_pic').innerHTML = '+'; $('sp_meta').innerHTML = 'no spot selected<small>click a spot on the timeline, or a work to place one</small>'; return; }
     $('sp_pic').innerHTML = x.work ? '<img src="works/t' + String(x.work).padStart(2, '0') + '.webp">' : '+';
     $('sp_meta').innerHTML = 'spot ' + (sel + 1) + (x.work ? ' · work ' + String(x.work).padStart(2, '0') : ' · no image') + '<small>' + fmt(x.t0) + ' → ' + fmt(x.t1) + ' · ' + (x.t1 - x.t0).toFixed(1) + ' s on screen</small>';
-    for (const k of ['t0', 't1', 'fin', 'fout']) { I[k].max = k === 't0' || k === 't1' ? D().toFixed(1) : 12; I[k].value = x[k]; N[k].value = x[k].toFixed(1); } }
+    for (const k of ['t0', 't1', 'fin', 'fout']) { I[k].max = k === 't0' || k === 't1' ? D().toFixed(1) : 12; I[k].value = x[k]; N[k].value = x[k].toFixed(1); }
+    const pos = x.pos === 'l' || x.pos === 'r' ? x.pos : 'c'; $('sp_posrow').querySelectorAll('button').forEach(b => b.classList.toggle('primary', b.dataset.pos === pos)); }
   function setField(k, v) { const x = SP[sel]; if (!x || isNaN(v)) return;
     if (k === 't0') x.t0 = Math.max(0, Math.min(x.t1 - 1, v)); else if (k === 't1') x.t1 = Math.max(x.t0 + 1, Math.min(D(), v)); else x[k] = Math.max(0.2, Math.min(12, v));
     const cur = x; changed(); sel = SP.indexOf(cur); showGrid(); showInsp(); draw(); }
@@ -794,6 +798,7 @@ window.addEventListener('resize', () => camera(paint(a.currentTime)));
     [I[k], N[k]].forEach(el => { el.addEventListener('click', e => e.stopPropagation()); el.addEventListener('keydown', e => e.stopPropagation()); }); }
   $('sp_prev').addEventListener('click', e => { e.stopPropagation(); const x = SP[sel]; if (!x) return; a.currentTime = Math.max(0, x.t0 - 1); if (a.paused) a.play(); });
   $('sp_noimg').addEventListener('click', e => { e.stopPropagation(); if (SP[sel]) { SP[sel].work = null; changed(); } });
+  $('sp_posrow').addEventListener('click', e => { e.stopPropagation(); const b = e.target.closest('button'); if (!b || !SP[sel]) return; SP[sel].pos = b.dataset.pos; const cur = SP[sel]; changed(); sel = SP.indexOf(cur); showInsp(); camera(paint(a.currentTime)); });
   $('sp_del').addEventListener('click', e => { e.stopPropagation(); if (sel < 0) return; SP.splice(sel, 1); sel = -1; changed(); });
   $('sp_new').addEventListener('click', e => { e.stopPropagation(); const t = +a.currentTime.toFixed(2); SP.push({ t0: t, t1: Math.min(D(), t + 8), fin: 3, fout: 3, work: null }); const cur = SP[SP.length - 1]; changed(); sel = SP.indexOf(cur); showGrid(); showInsp(); draw(); });
   $('sp_auto').addEventListener('click', e => { e.stopPropagation(); if (!confirm('replace every spot with the silences of ' + MIN_GAP + ' s and the tail?')) return;
@@ -817,7 +822,7 @@ window.addEventListener('resize', () => camera(paint(a.currentTime)));
       g.addColorStop(0, 'rgba(255,255,255,.95)'); g.addColorStop(Math.min(1, s.fin / span), 'rgba(255,255,255,0)'); g.addColorStop(Math.max(0, 1 - s.fout / span), 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(255,255,255,.95)');
       tctx.fillStyle = g; tctx.fillRect(x0, top, w, h); tctx.restore();
       tctx.beginPath(); tctx.roundRect(x0 + 0.5, top + 0.5, w - 1, h - 1, 4 * r); tctx.setLineDash(s.work ? [] : [4 * r, 3 * r]); tctx.strokeStyle = on ? '#111' : '#bdbdbd'; tctx.lineWidth = (on ? 2 : 1) * r; tctx.stroke(); tctx.setLineDash([]);
-      tctx.fillStyle = on ? '#111' : '#8c8c8c'; tctx.font = (9 * r) + 'px ui-monospace, Menlo, monospace'; tctx.fillText(s.work ? String(s.work).padStart(2, '0') : '+', x0 + 5 * r, top - 4 * r); });
+      tctx.fillStyle = on ? '#111' : '#8c8c8c'; tctx.font = (9 * r) + 'px ui-monospace, Menlo, monospace'; tctx.fillText((s.work ? String(s.work).padStart(2, '0') : '+') + (s.pos === 'l' ? ' L' : s.pos === 'r' ? ' R' : ''), x0 + 5 * r, top - 4 * r); });
     const xp = X(a.currentTime, W); tctx.fillStyle = '#111'; tctx.fillRect(xp - 0.5 * r, 0, r, H);
     $('sp_time').textContent = fmt(a.currentTime); $('sp_play').textContent = a.paused ? 'play' : 'pause';
   }
