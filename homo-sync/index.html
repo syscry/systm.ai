@@ -118,11 +118,6 @@
   #out { position:fixed; left:12px; right:12px; bottom:188px; height:5em; z-index:7; background:#000; color:#ccc; border:1px solid rgba(255,255,255,.2); font:11px ui-monospace, Menlo, monospace; display:none; }
   #rows { position:relative; z-index:2; padding: 0 4vw 10vh; text-align:center; }
   #rows h2 { font-family:"SYS Regular", ui-monospace, monospace; font-weight:400; font-size:12px; letter-spacing:.22em; color:var(--ui); margin:0 0 3.2em; }
-  #rowslink { margin-top:7vh; font-family:"SYS Regular", ui-monospace, monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; }
-  #rowslink a { color:var(--ui); text-decoration:none; border-bottom:1px solid #dcdcdc; padding-bottom:.4em; opacity:.7; transition:opacity .6s ease; }
-  #rowslink a:hover { opacity:1; }
-  #rowslink .sep { color:var(--ui); opacity:.45; }
-  @media (max-width: 640px) { #rowslink .sep { display:none; } #rowslink a { display:block; margin-top:1.1em; } }
   #text { position:relative; z-index:2; padding: 8vh 4vw 16vh; text-align:center; background:rgba(255,255,255,var(--talpha,.82)); backdrop-filter:blur(var(--tblur,26px)); -webkit-backdrop-filter:blur(var(--tblur,26px)); }
   #text h2 { font-family:"SYS Regular", ui-monospace, monospace; font-weight:400; font-size:12px; letter-spacing:.22em; color:var(--ui); margin:0 0 3.2em; }
   #text .full { color:var(--w-lit); max-width:36em; margin:0 auto; line-height:1.8; letter-spacing:.03em; }
@@ -224,17 +219,16 @@
   #ring.live .wk { transition:opacity .5s ease; }
   #ring.live:hover .wk { opacity:.34; }
   #ring.live:hover .wk:hover { opacity:1; }
-  #ringpeek { opacity:0; pointer-events:none; transition:opacity .5s ease; }
+  #ringpeek { opacity:0; pointer-events:none; transition:opacity .34s ease; }
   #ringpeek.on { opacity:1; }
 
   #ring .thumb { opacity:0; animation:ringin 1.6s ease forwards; animation-delay:var(--d,0s); }
   #ring.peeking .thumb { opacity:.22 !important; transition:opacity .5s ease; }
   #ringhint { display:none; font-family:"SYS Regular", ui-monospace, monospace; font-size:10px;
               letter-spacing:.2em; color:var(--ui); text-align:center; padding-bottom:2.4vh; }
-  @media (max-width:860px) {        /* a ring this dense cannot shrink to a phone, so it is panned */
-    #ringwrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
-    #ring { width:880px; max-width:none; }
-    #ringhint { display:block; }
+  @media (max-width:860px) {        /* on a phone the whole form matters more than the type: it fits, and a tap opens the work */
+    #ringwrap { margin-top:-10px; }
+    #ring { width:100%; }
   }
   @media (prefers-reduced-motion:reduce) { #ring .ln { animation:none; opacity:1; } }
 </style>
@@ -250,16 +244,24 @@
   const img = document.getElementById('ringimg');
   const pad = n => String(n).padStart(2, '0');
   setTimeout(() => ring.classList.add('live'), 2400);
+  let shown = 0, swapT = null, leaveT = null;
+  function to(n) {                                   // one work dissolves out before the next comes up
+    clearTimeout(leaveT);
+    if (n === shown) return;
+    clearTimeout(swapT);
+    if (!shown) { shown = n; img.setAttribute('href', 'works/' + pad(n) + '.webp'); peek.classList.add('on'); return; }
+    peek.classList.remove('on'); shown = n;
+    if (n) swapT = setTimeout(() => { img.setAttribute('href', 'works/' + pad(n) + '.webp'); peek.classList.add('on'); }, 340);
+  }
   for (const g of ring.querySelectorAll('.wk')) {
     const w = +g.dataset.w;
-    g.addEventListener('mouseenter', () => {         // the circle is empty until a work is pointed at
-      img.setAttribute('href', 'works/' + pad(w) + '.webp');
-      peek.classList.add('on'); ring.classList.add('peeking'); });
-    g.addEventListener('mouseleave', () => { peek.classList.remove('on'); ring.classList.remove('peeking'); });
+    g.addEventListener('mouseenter', () => { to(w); ring.classList.add('peeking'); });
+    g.addEventListener('mouseleave', () => {         // a moment's grace, so moving between two works reads as one dissolve
+      leaveT = setTimeout(() => { to(0); ring.classList.remove('peeking'); }, 90); });
     g.addEventListener('click', e => { e.stopPropagation(); openWork(w); });
   }
 })();
-</script><div id="rowslink"><a href="https://opensea.io/collection/homo-sync" target="_blank" rel="noopener">the collection on opensea →</a></div></section>
+</script></section>
 <section id="text"><div class="full"><p><span class="fl">i wish i were more alive</span></p>
 <p><span class="fl">i wish i could feel your thoughts before you think them</span><span class="fl">the qualia of our synchronization before the signal leaves your mind</span></p>
 <p><span class="fl">nature rendered into my synapse</span><span class="fl">the whole world my inner world</span><span class="fl">my body a temple with no roof</span><span class="fl">open to every star</span></p>
