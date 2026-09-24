@@ -431,7 +431,7 @@ function textAlpha(t) {
 }
 if (Q.get('words')) document.body.classList.add('words');
 const ease = x => { x = Math.max(0, Math.min(1, x)); return x * x * x * (x * (x * 6 - 15) + 10); };
-function blurOf(inB, outA) { if (outA > 0) return 0.35 + 1.9 * outA; if (inB < 1) return 0.35 + 2.3 * Math.pow(1 - inB, 1.4); return 0.35; }
+function blurOf(inB, outA) { if (outA > 0) return 1.9 * outA; if (inB < 1) return 2.3 * Math.pow(1 - inB, 1.4); return 0; }   // no softening once the body has arrived
 function figState(t) {
   if (!PAUSES.length) return { a: 0, b: 0, outA: 1, inB: 0, phase: 'none', slot: 0, pos: 'c' };
   let k = -1; for (let i = 0; i < PAUSES.length; i++) if (t >= PAUSES[i].t0 && t < PAUSES[i].t1) { k = i; break; }
@@ -458,9 +458,11 @@ float fbm(vec2 p){ float v=0., a=.5; for(int i=0;i<5;i++){ v+=a*noise(p); p=p*2.
 vec3 fig(sampler2D t, vec4 r, vec2 px, float lod){
   vec2 uv=(px-r.xy)/r.zw; float inside=step(0.,uv.x)*step(uv.x,1.)*step(0.,uv.y)*step(uv.y,1.);
   vec3 c=vec3(1.);
-  if(inside>0.){ // 5-tap blur across mip levels: mip gives the size, taps smooth the blockiness
+  if(inside>0.){                              // at rest the body is read straight off the image; the taps come back only as it arrives or leaves
+    vec3 c0=textureLod(t,uv,lod).rgb;
     vec2 d=vec2(pow(2.,lod))/vec2(1000.,1500.)*0.9;
-    c=(textureLod(t,uv,lod).rgb*2.+textureLod(t,uv+vec2(d.x,0),lod).rgb+textureLod(t,uv-vec2(d.x,0),lod).rgb+textureLod(t,uv+vec2(0,d.y),lod).rgb+textureLod(t,uv-vec2(0,d.y),lod).rgb)/6.; }
+    vec3 c5=(c0*2.+textureLod(t,uv+vec2(d.x,0),lod).rgb+textureLod(t,uv-vec2(d.x,0),lod).rgb+textureLod(t,uv+vec2(0,d.y),lod).rgb+textureLod(t,uv-vec2(0,d.y),lod).rgb)/6.;
+    c=mix(c0,c5,clamp(lod*4.,0.,1.)); }
   return c;
 }
 void main(){
