@@ -46,12 +46,12 @@
 
   .ui { position:absolute; z-index:3; font-family:"SYS Regular", ui-monospace, monospace; font-size:11px; letter-spacing:.16em; color:var(--ui); transition:opacity 1.4s; white-space:nowrap; }
   #title { left:2.6vw; top:2.4vh; }
-  #time  { right:2.6vw; bottom:2.6vh; font-variant-numeric:tabular-nums; }
-  #count { left:2.6vw; bottom:2.6vh; font-variant-numeric:tabular-nums; }
-  #hint  { left:0; right:0; bottom:2.6vh; display:flex; justify-content:center; align-items:center; gap:1.1em; opacity:.8; }
+  #time  { right:2.6vw; bottom:2.6vh; font-variant-numeric:tabular-nums; opacity:var(--barfade,1); filter:blur(var(--barblur,0px)); }
+  #count { left:2.6vw; bottom:2.6vh; font-variant-numeric:tabular-nums; opacity:var(--barfade,1); filter:blur(var(--barblur,0px)); }
+  #hint  { left:0; right:0; bottom:2.6vh; display:flex; justify-content:center; align-items:center; gap:1.1em; opacity:calc(.8 * var(--barfade,1)); filter:blur(var(--barblur,0px)); }
   .ic { width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
   #icpause { display:none; }
-  body.playing #hint { opacity:.45; }
+  body.playing #hint { opacity:calc(.45 * var(--barfade,1)); }
   body.playing #icplay { display:none; }
   .ic.tap { cursor:pointer; pointer-events:auto; opacity:.85; transition:opacity .4s; } .ic.tap:hover { opacity:1; }
   #icfsx { display:none; } body.fs #icfs { display:none; } body.fs #icfsx { display:inline; }
@@ -61,6 +61,7 @@
   #title svg { display:block; }
   #title { top:2.4vh; }
   body.ended #count { opacity:0; }
+  #seek { opacity:var(--barfade,1); filter:blur(var(--barblur,0px)); }
   #seek { position:absolute; left:2.6vw; right:2.6vw; bottom:5.8vh; height:32px; cursor:ew-resize; z-index:5; }
   #track { position:absolute; left:0; right:0; top:50%; height:1px; transform:translateY(-50%); background:#e4e4e4; transition:height .25s ease; }
   #seek:hover #track { height:3px; }
@@ -138,9 +139,10 @@
   body.video #specs, body.edit #specs, body.spots #specs { display:none; }
   @media (max-width: 640px) { #specs { top:calc(64px + 2vh); bottom:auto; flex-direction:column; gap:3vh; padding:0 20px; font-size:10px; letter-spacing:.14em; } #specs .col { width:100%; } #specs .r { line-height:2; } #specs h3 { margin-bottom:.6em; } }
   #down { position:absolute; left:0; right:0; bottom:calc(5.8vh + 44px); text-align:center; z-index:3; opacity:0; pointer-events:none; transition:opacity 2.5s; }
-  body.outro #down, body.ended #down { opacity:.9; pointer-events:auto; }
+  body.outro #down, body.ended #down { opacity:calc(.9 * var(--barfade,1)); pointer-events:auto; }
   #start { position:absolute; left:0; right:0; bottom:calc(5.8vh + 44px); text-align:center; z-index:3; opacity:0; pointer-events:none; transition:opacity 2.5s; }
-  body.idle #start { opacity:.7; }
+  body.idle #start { opacity:calc(.7 * var(--barfade,1)); }
+  #start, #down { filter:blur(var(--barblur,0px)); }
   @media (max-width: 640px) { #start .sep { display:none; } #start .hp { display:block; margin-top:.7em; } }
   body.video #start, body.edit #start { display:none; }
   body.outro #down:hover, body.ended #down:hover { opacity:1; }
@@ -781,8 +783,13 @@ window.addEventListener('resize', () => camera(paint(a.currentTime)));
   room(); addEventListener('resize', room);
   const RM = document.getElementById('rowsmark');   // the second mark dissolves before it can slide under the fixed one in the bar
   function markFade() { if (!RM) return; const t = RM.getBoundingClientRect().top, k = Math.max(0, Math.min(1, (t - 84) / 120)); RM.style.opacity = (k * k * (3 - 2 * k)).toFixed(3); }
-  let veilQ = false; const onScroll = () => { frost(); if (!veilQ) { veilQ = true; requestAnimationFrame(() => { veilQ = false; veil(); markFade(); }); } };
-  addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); addEventListener('load', onScroll); frost(); veil(); markFade();
+  const PBAR = document.getElementById('hint');     // the player's own row dissolves before it can reach the top of the window
+  function barFade() { if (!PBAR) return;
+    const t = PBAR.getBoundingClientRect().top, k = Math.max(0, Math.min(1, (t - 40) / 190)), e = k * k * (3 - 2 * k);
+    R.style.setProperty('--barfade', e.toFixed(3));
+    R.style.setProperty('--barblur', ((1 - e) * 6).toFixed(2) + 'px'); }
+  let veilQ = false; const onScroll = () => { frost(); if (!veilQ) { veilQ = true; requestAnimationFrame(() => { veilQ = false; veil(); markFade(); barFade(); }); } };
+  addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); addEventListener('load', onScroll); frost(); veil(); markFade(); barFade();
 })();
 </script>
 <script>
