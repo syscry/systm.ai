@@ -138,8 +138,8 @@
   @media (max-width: 899px) { .grid { grid-template-columns: repeat(3, 1fr); gap: 6vw 3vw; } }
   .work { margin:0; opacity:0; transform: translateY(10px); transition: opacity 2.4s ease, transform 2.4s ease; }
   .work.on { opacity:1; transform:none; }
-  .work img { width:100%; height:auto; display:block; aspect-ratio: 1 / 2; transition: transform 1.1s cubic-bezier(.2,.7,.2,1), opacity 1.1s ease, filter 1.1s ease; }
-  @media (hover:hover) { .work:hover img { transform: translateY(-5px) scale(1.035); opacity:.8; filter: blur(.35px); } .work span { transition: color 1.1s ease; } .work:hover span { color:#777; } }
+  .work img { width:100%; height:auto; display:block; aspect-ratio: 1 / 2; opacity:.9; transition: opacity 1.1s ease; }
+  @media (hover:hover) { .work:hover img { opacity:1; } }
   .work span { display:block; margin-top:.9em; font-family:"SYS Regular", ui-monospace, monospace; font-size:10px; letter-spacing:.2em; color:var(--ui); }
   #down { position:absolute; left:0; right:0; bottom:calc(5.8vh + 44px); text-align:center; z-index:3; opacity:0; pointer-events:none; transition:opacity 2.5s; }
   body.outro #down, body.ended #down { opacity:.9; pointer-events:auto; }
