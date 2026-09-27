@@ -563,7 +563,17 @@ window.frameStats = () => { const s = fpsAcc.reduce((x, y) => x + y, 0); return 
 
 function loop() { const t = a.currentTime; let F = paint(t); const tt = t - OFFSET; const al = EDIT ? 1 : textAlpha(tt); poem.style.opacity = al.toFixed(3);
   let hold = false;
-  if (!EDIT) { const P = PAUSES.find(P => tt >= P.textOut[0] && tt <= P.textIn[1] + 0.05);
+  if (!EDIT) {
+    // The window has to run until the next line actually begins, not until the poem has
+    // finished fading back in. It used to end at textIn[1], and focusLine then handed the
+    // camera back to the PREVIOUS line, because the next one is still more than 1.6 s away
+    // on a long silence. So the text slid down to the old line in full view and climbed
+    // back up when the new one started. Holding the next line through the gap removes both
+    // moves: the poem returns already in place and simply lights up.
+    const P = PAUSES.find(P => {
+      const ns = lineStart[P.nextEl.dataset.l];
+      const until = Math.max(P.textIn[1] + 0.05, ns == null ? 0 : ns);   // never shorter than before
+      return tt >= P.textOut[0] && tt <= until; });
     if (P) { if (tt < P.textOut[1]) hold = true;                   // leaving: the camera does not move at all
              else { F = P.nextEl; camY = null; } } }              // gone or returning: sit on the next line, no easing, nothing to see moving
   if (!EDIT) document.body.classList.toggle('outro', !!TAILP && !Q.get('words') && tt >= TAILP.t1);   // the last body has dissolved: show where the works are
