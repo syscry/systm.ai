@@ -18,22 +18,16 @@
   .sys-contract { font-family:"SYS Light", ui-monospace, Menlo, monospace;
     font-size:11px; letter-spacing:.14em; color:#bdbdbd; text-decoration:none;
     white-space:nowrap; text-transform:lowercase; }
-  /* Seven hairlines that move while the poem is playing and lie flat when it is not,
-     so the corner says "there is sound here" without saying anything. Each bar has
-     its own period and delay, all primes, so the group never falls into step. */
-  .sys-wave { display:flex; align-items:center; gap:2.2px; height:14px; }
+  /* Seven hairlines driven by the poem itself. Heights are set per frame from which
+     word is lit in the page, so the corner moves when a word is being spoken and
+     rests in the silences between lines. It is a control as well: clicking it starts
+     and stops the reading. */
+  .sys-wave { display:flex; align-items:center; gap:2.2px; height:14px; cursor:pointer;
+    pointer-events:auto; }
   .sys-wave i { display:block; width:1.4px; height:3px; border-radius:1px;
-    background:#bdbdbd; transform-origin:center; will-change:transform; }
-  .sys-wave.on i { animation:sysw var(--d) ease-in-out infinite alternate; }
-  .sys-wave i:nth-child(1){ --d:1.1s; animation-delay:0s }
-  .sys-wave i:nth-child(2){ --d:1.7s; animation-delay:-.4s }
-  .sys-wave i:nth-child(3){ --d:1.3s; animation-delay:-.9s }
-  .sys-wave i:nth-child(4){ --d:1.9s; animation-delay:-.2s }
-  .sys-wave i:nth-child(5){ --d:1.3s; animation-delay:-1.1s }
-  .sys-wave i:nth-child(6){ --d:1.7s; animation-delay:-.6s }
-  .sys-wave i:nth-child(7){ --d:1.1s; animation-delay:-.8s }
-  @keyframes sysw { from { transform:scaleY(1) } to { transform:scaleY(3.6) } }
-  @media (prefers-reduced-motion:reduce) { .sys-wave.on i { animation:none } }
+    background:#bdbdbd; transition:background .3s ease; }
+  .sys-wave:hover i, .sys-wave:focus-visible i { background:#8a8a8a; }
+  .sys-wave:focus { outline:none; }
   /* the mark sat between a 24px logo and a right-hand block of a different width,
      inside justify-content:space-between, so its centre landed 8.3px left of the
      bar's. Centred against the bar itself it cannot drift when either side
@@ -55,24 +49,54 @@
       <div data-w-id="35deda88-a69a-f64b-2282-213be29e3e1b" class="sys-logo-div"><img src="https://systm.ai/images/sys-tm-fav-256.png" loading="lazy" data-w-id="ee4b2528-0479-c99b-aa89-60fba89f6534" alt="" class="sys-logo-img"></div>
     </a>
     <div data-w-id="ee4b2528-0479-c99b-aa89-60fba89f6535" class="eth-time desktop w-embed" id="homomark" style="color:#ccc;height:auto;margin-top:0;display:flex;justify-content:center;align-items:center;max-width:none;margin-left:0"></div>
-    <div class="div-block-1634"><div class="sys-wave" id="syswave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="div-block-1634"><div class="sys-wave" id="syswave" role="button" tabindex="0" aria-label="play the poem" title="play"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
   </div>
   <script src="https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=627ac3000ea41216d302b220" type="text/javascript" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
   <script src="https://systm.ai/js/webflow.js" type="text/javascript"></script>
 
 <script>
 (function () {
-  // the bar is an iframe of the same origin, so it can read the page's own audio
-  // element directly; there is no analyser on the page, so this follows play state
-  // rather than amplitude. Wrapped because a cross-origin parent would throw.
+  // The bar is a same-origin iframe, so it can read the page directly. The page has
+  // no analyser (its uVoice uniform is wired but always 0), and adding one would mean
+  // routing the poem through a Web Audio graph, which can silence it if anything goes
+  // wrong. The page already marks the word being spoken with .w.lit, so the bars are
+  // driven from that instead: real, from the poem, and it cannot break playback.
   var w = document.getElementById('syswave');
-  function tick() {
-    try {
-      var a = parent.document.querySelector('audio');
-      w.classList.toggle('on', !!a && !a.paused && !a.ended);
-    } catch (e) { }
+  var bars = [].slice.call(w.children);
+  var SPEED = [1.7, 2.3, 1.3, 2.9, 1.1, 1.9, 2.7];      // primes, so they never line up
+  var PHASE = [0, 1.1, 2.3, 0.7, 1.9, 2.8, 1.5];
+  var env = 0, lastWord = null, raf = 0;
+  var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function page() { try { return parent.document; } catch (e) { return null; } }
+
+  function frame(ts) {
+    var d = page(), t = ts / 1000, lit = null, playing = false;
+    if (d) {
+      lit = d.querySelector('#poem .w.lit');
+      var a = d.querySelector('audio');
+      playing = !!a && !a.paused && !a.ended;
+    }
+    // a new word strikes the envelope; it decays through the word and falls away in
+    // the silences, which is what makes it read as speech rather than as a loop
+    if (lit && lit !== lastWord) { env = 1; lastWord = lit; }
+    if (!lit) lastWord = null;
+    env = lit ? Math.max(env * 0.94, 0.38) : env * 0.90;
+    if (!playing) env = 0;
+
+    for (var i = 0; i < bars.length; i++) {
+      var s = still ? 0.5 : Math.abs(Math.sin(t * SPEED[i] + PHASE[i]));
+      bars[i].style.height = (3 + env * (2 + 9 * s)).toFixed(1) + 'px';
+    }
+    raf = requestAnimationFrame(frame);
   }
-  setInterval(tick, 400); tick();
+  raf = requestAnimationFrame(frame);
+
+  function toggle() { try { parent.toggle(); } catch (e) { } }
+  w.addEventListener('click', toggle);
+  w.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+  });
 })();
 </script>
 </body>
