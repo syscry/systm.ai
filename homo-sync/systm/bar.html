@@ -18,14 +18,13 @@
   .sys-contract { font-family:"SYS Light", ui-monospace, Menlo, monospace;
     font-size:11px; letter-spacing:.14em; color:#bdbdbd; text-decoration:none;
     white-space:nowrap; text-transform:lowercase; }
-  /* Seven hairlines driven by the poem itself. Heights are set per frame from which
-     word is lit in the page, so the corner moves when a word is being spoken and
-     rests in the silences between lines. It is a control as well: clicking it starts
-     and stops the reading. */
-  .sys-wave { display:flex; align-items:center; gap:2.2px; height:14px; cursor:pointer;
+  /* Seven hairlines driven by the poem. At rest they hold an arc, so the corner reads
+     as a soundwave before anything moves; while a word is spoken they swing around
+     that arc. Clicking starts and stops the reading. */
+  .sys-wave { display:flex; align-items:center; gap:2.2px; height:18px; cursor:pointer;
     pointer-events:auto; }
-  .sys-wave i { display:block; width:1.4px; height:3px; border-radius:1px;
-    background:#bdbdbd; transition:background .3s ease; }
+  .sys-wave i { display:block; width:1.4px; border-radius:1px; background:#bdbdbd;
+    transition:background .3s ease; }
   .sys-wave:hover i, .sys-wave:focus-visible i { background:#8a8a8a; }
   .sys-wave:focus { outline:none; }
   /* the mark sat between a 24px logo and a right-hand block of a different width,
@@ -56,16 +55,19 @@
 
 <script>
 (function () {
-  // The bar is a same-origin iframe, so it can read the page directly. The page has
-  // no analyser (its uVoice uniform is wired but always 0), and adding one would mean
-  // routing the poem through a Web Audio graph, which can silence it if anything goes
-  // wrong. The page already marks the word being spoken with .w.lit, so the bars are
-  // driven from that instead: real, from the poem, and it cannot break playback.
+  // The bar is a same-origin iframe, so it can read the page directly. The page has no
+  // analyser, and adding one would mean routing the poem through a Web Audio graph,
+  // which can silence it if anything goes wrong. The page already marks the word being
+  // spoken with .w.lit, so the bars are driven from that: real, from the poem, and it
+  // cannot break playback.
   var w = document.getElementById('syswave');
   var bars = [].slice.call(w.children);
-  var SPEED = [1.7, 2.3, 1.3, 2.9, 1.1, 1.9, 2.7];      // primes, so they never line up
+  // the resting arc. Flat bars read as a row of dashes and say nothing; this says
+  // sound before a single thing has moved.
+  var BASE  = [4, 7.5, 11, 13.5, 11, 7.5, 4];
+  var SPEED = [5.1, 7.3, 4.3, 8.9, 3.7, 6.7, 5.9];   // primes, so they never line up
   var PHASE = [0, 1.1, 2.3, 0.7, 1.9, 2.8, 1.5];
-  var env = 0, lastWord = null, raf = 0;
+  var env = 0, kick = new Array(7).fill(0), lastWord = null;
   var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function page() { try { return parent.document; } catch (e) { return null; } }
@@ -77,20 +79,26 @@
       var a = d.querySelector('audio');
       playing = !!a && !a.paused && !a.ended;
     }
-    // a new word strikes the envelope; it decays through the word and falls away in
-    // the silences, which is what makes it read as speech rather than as a loop
-    if (lit && lit !== lastWord) { env = 1; lastWord = lit; }
+    // every new word strikes, and each bar gets its own share of the strike so the
+    // group does not move as one block
+    if (lit && lit !== lastWord) {
+      env = 1; lastWord = lit;
+      for (var k = 0; k < 7; k++) kick[k] = 0.55 + Math.random() * 0.75;
+    }
     if (!lit) lastWord = null;
-    env = lit ? Math.max(env * 0.94, 0.38) : env * 0.90;
+    env = lit ? Math.max(env * 0.90, 0.46) : env * 0.86;   // sharper than before, so a word reads as a hit
     if (!playing) env = 0;
 
     for (var i = 0; i < bars.length; i++) {
-      var s = still ? 0.5 : Math.abs(Math.sin(t * SPEED[i] + PHASE[i]));
-      bars[i].style.height = (3 + env * (2 + 9 * s)).toFixed(1) + 'px';
+      var osc = still ? 0.5 : Math.abs(Math.sin(t * SPEED[i] + PHASE[i]));
+      // the arc flattens a little as the swing takes over, so it reads as the same
+      // shape coming alive rather than as bars growing out of nothing
+      var h = BASE[i] * (1 - 0.34 * env) + env * kick[i] * 12 * osc;
+      bars[i].style.height = Math.max(2.5, Math.min(18, h)).toFixed(1) + 'px';
     }
-    raf = requestAnimationFrame(frame);
+    requestAnimationFrame(frame);
   }
-  raf = requestAnimationFrame(frame);
+  requestAnimationFrame(frame);
 
   function toggle() { try { parent.toggle(); } catch (e) { } }
   w.addEventListener('click', toggle);
