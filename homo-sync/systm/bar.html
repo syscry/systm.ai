@@ -18,13 +18,15 @@
   .sys-contract { font-family:"SYS Light", ui-monospace, Menlo, monospace;
     font-size:11px; letter-spacing:.14em; color:#bdbdbd; text-decoration:none;
     white-space:nowrap; text-transform:lowercase; }
-  /* Seven hairlines driven by the poem. They move from the moment the page opens, on
-     an uneven silhouette rather than a tidy arc, and swing wider while a word is spoken. Clicking starts and stops the reading. */
+  /* Seven hairlines. Still on arrival, so the corner is a mark rather than a moving
+     thing; they wake on hover and while the poem reads. Flat when no word is sounding,
+     because a wave that keeps waving through a silence is decoration, not a reading. */
   .sys-wave { display:flex; align-items:center; gap:2.2px; height:18px; cursor:pointer;
     pointer-events:auto; }
-  .sys-wave i { display:block; width:1.4px; border-radius:1px; background:#cfcfcf;
-    transition:background .3s ease; }
-  .sys-wave:hover i, .sys-wave:focus-visible i { background:#9a9a9a; }
+  .sys-wave i { display:block; width:1.4px; border-radius:1px; background:#d8d8d8;
+    transition:background .45s ease; }
+  .sys-wave.awake i { background:#c4c4c4; }
+  .sys-wave:hover i { background:#a8a8a8; }
   .sys-wave:focus { outline:none; }
   /* the mark sat between a 24px logo and a right-hand block of a different width,
      inside justify-content:space-between, so its centre landed 8.3px left of the
@@ -56,20 +58,25 @@
 (function () {
   // The bar is a same-origin iframe, so it can read the page directly. The page has no
   // analyser, and adding one would mean routing the poem through a Web Audio graph,
-  // which can silence it if anything goes wrong. The page already marks the word being
-  // spoken with .w.lit, so the bars are driven from that: real, from the poem, and it
-  // cannot break playback.
+  // which can silence it if anything goes wrong. The page marks the word being spoken
+  // with .w.lit, so two separate things are read off it: whether a word is sounding at
+  // all, and how busy the reading is. The first decides flat or not, the second decides
+  // how much movement. Keeping them apart is what lets a slow passage stay calm without
+  // going flat, and a silence go flat without going still-and-wrong.
   var w = document.getElementById('syswave');
   var bars = [].slice.call(w.children);
-  // An uneven silhouette, not a symmetric arc: a neat curve reads as an icon, this
-  // reads as sound. Each bar also carries a slow drift of its own, so the shape keeps
-  // rearranging instead of holding one pose.
-  var BASE  = [6, 12.5, 8, 4.5, 14, 9, 11];
+  var BASE  = [6, 12.5, 8, 4.5, 14, 9, 11];          // uneven, not an arc
   var SPEED = [5.1, 7.3, 4.3, 8.9, 3.7, 6.7, 5.9];   // primes, so they never line up
   var DRIFT = [0.31, 0.47, 0.23, 0.53, 0.19, 0.41, 0.29];
   var PHASE = [0, 1.1, 2.3, 0.7, 1.9, 2.8, 1.5];
-  var env = 0, kick = new Array(7).fill(0.8), lastWord = null;
+  var FLAT = 2.5;
+
+  var voice = 0, act = 0, hover = 0, lastWord = null, marks = [];
   var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  w.addEventListener('mouseenter', function () { hover = 1; });
+  w.addEventListener('mouseleave', function () { hover = 0; });
+  w.addEventListener('focus', function () { hover = 1; });
+  w.addEventListener('blur', function () { hover = 0; });
 
   function page() { try { return parent.document; } catch (e) { return null; } }
 
@@ -80,28 +87,37 @@
       var a = d.querySelector('audio');
       playing = !!a && !a.paused && !a.ended;
     }
-    // every new word strikes, and each bar gets its own share of the strike so the
-    // group does not move as one block
-    if (lit && lit !== lastWord) {
-      lastWord = lit;
-      for (var k = 0; k < 7; k++) kick[k] = 0.78 + Math.random() * 0.32;   // a little variety, not a scatter
-    }
+    if (lit && lit !== lastWord) { lastWord = lit; marks.push(t); }
     if (!lit) lastWord = null;
-    // eased toward the target rather than snapped to it. Setting env = 1 on every word
-    // made each one a jolt, and at four words a second the corner read as twitching
-    // rather than speaking. It now rises over a few frames and falls slower than it rose.
-    env += ((lit ? 1 : 0) - env) * (lit ? 0.16 : 0.055);
-    if (!playing) env = 0;      // the word envelope only; the idle motion above never stops
+    while (marks.length && t - marks[0] > 1.8) marks.shift();
+
+    // is a word sounding right now: decides flat or shaped
+    // attack has to be quicker than a word is long or it never arrives: words run
+    // about 0.4s and a 0.14 rise needs 0.5s, so the shape sat half-built and the
+    // wave was smaller while reading than at rest. Release is slow, so the gaps
+    // between words do not flatten it and only a real silence does.
+    voice += ((playing && lit ? 1 : 0) - voice) * (lit ? 0.30 : 0.028);
+    // how busy the reading is: decides how much it moves. Five words in 1.8s is full
+    // tilt; a line delivered slowly sits near a third of that and stays calm.
+    var busy = Math.min(1, marks.length / 5);
+    act += ((playing ? busy : 0) - act) * 0.06;
+
+    var awake = playing || hover;
+    w.classList.toggle('awake', !!awake);
 
     for (var i = 0; i < bars.length; i++) {
-      // it breathes even before the poem starts, so the corner is alive on the start
-      // screen; a word only widens and quickens what is already happening
-      var osc = still ? 0.5 : Math.abs(Math.sin(t * SPEED[i] * (0.62 + 0.30 * env) + PHASE[i]));
-      var drift = still ? 0 : Math.sin(t * DRIFT[i] + PHASE[i] * 2) * 1.7;
-      // idle stays a breath, not a performance, so a spoken word still reads as
-      // a clear step up rather than more of the same
-      var h = (BASE[i] + drift) * (1 - 0.22 * env) + (1.7 + env * kick[i] * 7) * osc;
-      bars[i].style.height = Math.max(2.5, Math.min(18, h)).toFixed(1) + 'px';
+      var h;
+      if (!awake || still) {
+        h = BASE[i];                                   // arrival: a still mark
+      } else {
+        var mix = hover && !playing ? 0.5 : voice;     // hover previews it
+        var a2  = hover && !playing ? 0.34 : act;
+        var osc = Math.abs(Math.sin(t * SPEED[i] * (0.30 + 0.42 * a2) + PHASE[i]));
+        var dr  = Math.sin(t * DRIFT[i] + PHASE[i] * 2) * 1.5;
+        var live = (BASE[i] + dr) * (1 - 0.14 * a2) + (1.0 + a2 * 6.5) * osc;
+        h = FLAT + (live - FLAT) * mix;                // no word sounding -> flat
+      }
+      bars[i].style.height = Math.max(2.2, Math.min(18, h)).toFixed(1) + 'px';
     }
     requestAnimationFrame(frame);
   }
