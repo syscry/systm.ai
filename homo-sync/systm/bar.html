@@ -24,8 +24,15 @@
      bar's. Centred against the bar itself it cannot drift when either side
      changes width again. */
   .top-footer { position:relative; }
-  #homomark { position:absolute !important; left:50% !important; top:50% !important;
-    transform:translate(-50%,-50%) !important; margin:0 !important; }</style>
+  /* .top-footer is padded 20px at the top and 0 at the bottom, so its box centre is
+     10px above where the logo and the contract actually sit. Centring on 50% of the
+     box put the mark there too. Stretch it across the box instead and centre inside
+     the padding, which lands on the same line as everything else, and keeps doing so
+     if the bar padding ever changes. */
+  #homomark { position:absolute !important; left:50% !important;
+    top:0 !important; bottom:0 !important; transform:translateX(-50%) !important;
+    margin:0 !important; padding-top:inherit !important; padding-bottom:inherit !important;
+    display:flex !important; align-items:center !important; }</style>
 </head>
 <body class="body-intro">
 <div data-w-id="ee4b2528-0479-c99b-aa89-60fba89f6533" class="top-footer">
