@@ -83,21 +83,24 @@
     // every new word strikes, and each bar gets its own share of the strike so the
     // group does not move as one block
     if (lit && lit !== lastWord) {
-      env = 1; lastWord = lit;
-      for (var k = 0; k < 7; k++) kick[k] = 0.55 + Math.random() * 0.75;
+      lastWord = lit;
+      for (var k = 0; k < 7; k++) kick[k] = 0.78 + Math.random() * 0.32;   // a little variety, not a scatter
     }
     if (!lit) lastWord = null;
-    env = lit ? Math.max(env * 0.90, 0.46) : env * 0.86;   // sharper than before, so a word reads as a hit
+    // eased toward the target rather than snapped to it. Setting env = 1 on every word
+    // made each one a jolt, and at four words a second the corner read as twitching
+    // rather than speaking. It now rises over a few frames and falls slower than it rose.
+    env += ((lit ? 1 : 0) - env) * (lit ? 0.16 : 0.055);
     if (!playing) env = 0;      // the word envelope only; the idle motion above never stops
 
     for (var i = 0; i < bars.length; i++) {
       // it breathes even before the poem starts, so the corner is alive on the start
       // screen; a word only widens and quickens what is already happening
-      var osc = still ? 0.5 : Math.abs(Math.sin(t * SPEED[i] * (0.42 + 0.58 * env) + PHASE[i]));
+      var osc = still ? 0.5 : Math.abs(Math.sin(t * SPEED[i] * (0.62 + 0.30 * env) + PHASE[i]));
       var drift = still ? 0 : Math.sin(t * DRIFT[i] + PHASE[i] * 2) * 1.7;
       // idle stays a breath, not a performance, so a spoken word still reads as
       // a clear step up rather than more of the same
-      var h = (BASE[i] + drift) * (1 - 0.30 * env) + (1.7 + env * kick[i] * 13) * osc;
+      var h = (BASE[i] + drift) * (1 - 0.22 * env) + (1.7 + env * kick[i] * 7) * osc;
       bars[i].style.height = Math.max(2.5, Math.min(18, h)).toFixed(1) + 'px';
     }
     requestAnimationFrame(frame);
