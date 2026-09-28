@@ -66,10 +66,9 @@
   var w = document.getElementById('syswave');
   var bars = [].slice.call(w.children);
   var BASE  = [6, 12.5, 8, 4.5, 14, 9, 11];          // uneven, not an arc
-  var SPEED = [5.1, 7.3, 4.3, 8.9, 3.7, 6.7, 5.9];   // primes, so they never line up
-  var DRIFT = [0.31, 0.47, 0.23, 0.53, 0.19, 0.41, 0.29];
   var PHASE = [0, 1.1, 2.3, 0.7, 1.9, 2.8, 1.5];
   var FLAT = 2.5;
+  var shown = [6, 12.5, 8, 4.5, 14, 9, 11];          // what is on screen, eased toward the target
 
   var voice = 0, act = 0, hover = 0, lastWord = null, marks = [];
   var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -89,22 +88,36 @@
     }
     if (lit && lit !== lastWord) { lastWord = lit; marks.push(t); }
     if (!lit) lastWord = null;
-    while (marks.length && t - marks[0] > 1.8) marks.shift();
+    while (marks.length && t - marks[0] > 1.2) marks.shift();
 
     // is a word sounding right now: decides flat or shaped
     // attack has to be quicker than a word is long or it never arrives: words run
     // about 0.4s and a 0.14 rise needs 0.5s, so the shape sat half-built and the
     // wave was smaller while reading than at rest. Release is slow, so the gaps
     // between words do not flatten it and only a real silence does.
-    voice += ((playing && lit ? 1 : 0) - voice) * (lit ? 0.30 : 0.028);
+    voice += ((playing && lit ? 1 : 0) - voice) * (lit ? 0.30 : 0.055);
+    // release is twice what it was: the new easing on the bars adds its own lag, and
+    // the two together took eight seconds to reach flat, which is not a silence, it
+    // is a slow fade. Gaps inside a line are under a tenth of a second and survive it.
     // how busy the reading is: decides how much it moves. Five words in 1.8s is full
     // tilt; a line delivered slowly sits near a third of that and stays calm.
-    var busy = Math.min(1, marks.length / 5);
-    act += ((playing ? busy : 0) - act) * 0.06;
+    var busy = Math.min(1, marks.length / 3.5);
+    act += ((playing ? busy : 0) - act) * 0.09;
+    // a gap between two words is not a silence. While the reading is under way the
+    // shape is held, so it swells on each word and eases between them instead of
+    // collapsing toward flat and averaging smaller than it is at rest. Only when no
+    // word has passed for a couple of seconds does act fall and let it go flat.
+    if (act > 0.12) voice = Math.max(voice, 0.34);
 
     var awake = playing || hover;
     w.classList.toggle('awake', !!awake);
 
+    // One slow wave travelling across the seven, plus a slower one underneath it. Seven
+    // independent oscillators on prime periods never agreed with each other, which is
+    // what made it read as chatter; a travelling swell is the same information, calmer.
+    // sin mapped to 0..1 rather than its absolute value: |sin| has a cusp at the bottom
+    // and that cusp is the bounce.
+    var w1 = 1.95 + 1.05 * act, w2 = 0.85 + 0.55 * act;
     for (var i = 0; i < bars.length; i++) {
       var h;
       if (!awake || still) {
@@ -112,12 +125,15 @@
       } else {
         var mix = hover && !playing ? 0.5 : voice;     // hover previews it
         var a2  = hover && !playing ? 0.34 : act;
-        var osc = Math.abs(Math.sin(t * SPEED[i] * (0.30 + 0.42 * a2) + PHASE[i]));
-        var dr  = Math.sin(t * DRIFT[i] + PHASE[i] * 2) * 1.5;
-        var live = (BASE[i] + dr) * (1 - 0.14 * a2) + (1.0 + a2 * 6.5) * osc;
+        var s1 = 0.5 + 0.5 * Math.sin(t * w1 - i * 0.72 + PHASE[i] * 0.3);
+        var s2 = 0.5 + 0.5 * Math.sin(t * w2 + i * 0.41);
+        var swell = 0.62 * s1 + 0.38 * s2;
+        var live = BASE[i] * (1 - 0.10 * a2) + (1.4 + a2 * 7.5) * swell;
         h = FLAT + (live - FLAT) * mix;                // no word sounding -> flat
       }
-      bars[i].style.height = Math.max(2.2, Math.min(18, h)).toFixed(1) + 'px';
+      // eased rather than set, so nothing on screen can jump between two frames
+      shown[i] += (h - shown[i]) * 0.14;
+      bars[i].style.height = Math.max(2.2, Math.min(18, shown[i])).toFixed(1) + 'px';
     }
     requestAnimationFrame(frame);
   }
