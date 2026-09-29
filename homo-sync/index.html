@@ -85,10 +85,11 @@
      it promised a click everywhere you scrolled: over the ring, the poem, the specs.
      Now it is only where clicking actually does something. */
   /* The hand said "clickable" but not what the click does. The cursor now carries the
-     same two glyphs as the player line (#icplay / #icpause, identical paths and stroke),
+     same two glyphs as the player line (#icplay / #icpause, identical paths). Play is
+     solid in the site's own --ui grey #bdbdbd so it reads at 22px; pause stays hollow,
      so the piece states its one gesture wherever the pointer is: play while paused,
      pause while playing. #seek keeps its own ew-resize inside the piece. */
-  #piece { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'><path d='M8 5.5v13l10-6.5z' fill='none' stroke='%23999' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'/></svg>") 11 11, pointer; }
+  #piece { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'><path d='M8 5.5v13l10-6.5z' fill='%23bdbdbd' stroke='%23bdbdbd' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'/></svg>") 11 11, pointer; }
   body.playing #piece { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'><path d='M8 5.5v13M16 5.5v13' fill='none' stroke='%23999' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'/></svg>") 11 11, pointer; }
   #piece:fullscreen { width:100%; height:100%; background:var(--bg); }
   body.playing #icpause { display:block; }
